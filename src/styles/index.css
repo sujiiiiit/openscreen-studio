@@ -1,0 +1,22 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./fonts.css";
+@import "./theme.css";
+
+@layer base {
+  * {
+    @apply box-border border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-inter;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+* {
+  --electron-corner-smoothing: system-ui;
+}
