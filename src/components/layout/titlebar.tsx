@@ -1,6 +1,20 @@
 import { isMacintosh } from "@/lib/platform";
 import { useWindowState, useWindowControls } from "@/hooks/use-window-state";
 import { MacWindowControls, WindowsWindowControls } from "./controls";
+import { Button } from "@/components/ui/button";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  CloudLoadingIcon,
+  Delete02Icon,
+  Folder02Icon,
+  Redo03Icon,
+  Undo03Icon,
+} from "@hugeicons/core-free-icons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 export default function TitleBar() {
   const isMaximized = useWindowState();
   const windowControls = useWindowControls();
@@ -11,7 +25,74 @@ export default function TitleBar() {
       id="titlebar"
       className="overflow-hidden h-[var(--titlebar-height)] w-full border-b bg-background select-none flex flex-row flex-nowrap justify-between items-center;"
     >
-      <div>
+      <div
+        className="flex flex-row flex-nowrap items-center gap-2 pl-2"
+        style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+      >
+        <div
+          className="flex overflow-hidden items-center gap-2 h-full flex-row justify-between"
+          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+        >
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="ml-6">
+                <HugeiconsIcon icon={Folder02Icon} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent align="start" alignOffset={5}>
+              <p>Open Project</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <HugeiconsIcon icon={Delete02Icon} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Delete Project</p>
+            </TooltipContent>
+          </Tooltip>
+          <div className="flex outline-0 border-0 w-px h-[calc(100%_-_1.5rem)] bg-foreground/20 grow-0 shrink-0"></div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <HugeiconsIcon icon={Undo03Icon} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent kbd="Ctrl" kbd1="Z">
+              <p>Undo</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <HugeiconsIcon icon={Redo03Icon} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent kbd="Ctrl" kbd1="Y">
+              <p>Redo</p>
+            </TooltipContent>
+          </Tooltip>
+          <div className="flex outline-0 border-0 w-px h-[calc(100%_-_1.5rem)] bg-foreground/20 grow-0 shrink-0"></div>
+        </div>
+        <div className="flex-1 min-w-0 flex justify-between items-center px-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+              >
+                <HugeiconsIcon icon={CloudLoadingIcon} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Changes are not saved</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
         {isMacintosh ? (
           <MacWindowControls
             isMaximized={isMaximized}
