@@ -38,9 +38,9 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-hover: var(--hover);
   --font-inter: "Inter", sans-serif;
-  --color-surface:var(--surface-color);
-  --color-icon:var(--icon-color);
-  --color-primary-active:var(--primary-active);
+  --color-surface: var(--surface-color);
+  --color-icon: var(--icon-color);
+  --color-primary-active: var(--primary-active);
 }
 
 :root {
@@ -80,7 +80,7 @@
   --titlebar-height: 50px;
   --titlebar-close-hover: rgba(232, 17, 35, 0.9);
   --surface-color: #ffffff;
-  --icon-color:#707579;
+  --icon-color: #707579;
   --primary-active: #8774e1;
 }
 
@@ -118,5 +118,5 @@
   --sidebar-ring: oklch(0.556 0 0);
   --hover: rgb(255, 255, 255, 0.1);
   --surface-color: #212121;
-  --icon-color:#aaaaaa;
+  --icon-color: #aaaaaa;
 }
