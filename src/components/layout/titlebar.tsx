@@ -26,7 +26,7 @@ export default function TitleBar() {
       className="overflow-hidden h-[var(--titlebar-height)] w-full border-b bg-background select-none flex flex-row flex-nowrap justify-between items-center;"
     >
       <div
-        className="flex flex-row flex-nowrap items-center gap-2 pl-2"
+        className="flex flex-row flex-nowrap items-center gap-2"
         style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
       >
         <div
