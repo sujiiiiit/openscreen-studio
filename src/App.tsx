@@ -1,3 +1,5 @@
+import { ThemeProvider } from "./components/ui/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import TitleBar from "@/components/layout/titlebar";
 import {
   ResizableHandle,
@@ -9,20 +11,29 @@ import Main from "@/components/layout/main";
 import Footer from "@/components/layout/footer";
 export default function App() {
   return (
-    <div className="h-dvh w-dvw overflow-hidden">
-      <TitleBar />
-      <ResizablePanelGroup direction="vertical">
-        <ResizablePanel order={1}>
-          <section className="flex h-full flex-row">
-            <Sidebar />
-            <Main />
-          </section>
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel minSize={30} order={2} defaultSize={31} maxSize={60}>
-          <Footer />
-        </ResizablePanel>
-      </ResizablePanelGroup>
-    </div>
+    <ThemeProvider defaultTheme="light">
+      <TooltipProvider delayDuration={0} >
+        <div className="h-dvh w-dvw overflow-hidden">
+          <TitleBar />
+          <ResizablePanelGroup direction="vertical">
+            <ResizablePanel order={1}>
+              <section className="flex h-full flex-row">
+                <Sidebar />
+                <Main />
+              </section>
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel
+              minSize={30}
+              order={2}
+              defaultSize={31}
+              maxSize={60}
+            >
+              <Footer />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
+      </TooltipProvider>
+    </ThemeProvider>
   );
 }

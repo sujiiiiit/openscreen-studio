@@ -41,6 +41,12 @@
   --color-surface: var(--surface-color);
   --color-icon: var(--icon-color);
   --color-primary-active: var(--primary-active);
+  --shadow-long:
+    0px 8px 12px 0px var(--tw-shadow-color, var(--shadow-color-1, #00000014)),
+    0px 0px 1px 0px var(--tw-shadow-color, var(--shadow-color-2, #0000009e));
+  --border-light: var(--border-light);
+  --animate-fd-popover-in: var(--animate-fd-popover-in);
+  --animate-fd-popover-out: var(--animate-fd-popover-out);
 }
 
 :root {
@@ -82,6 +88,10 @@
   --surface-color: #ffffff;
   --icon-color: #707579;
   --primary-active: #8774e1;
+  --border-light: #0d0d0d0d;
+  --menu-item-height: calc(var(--spacing) * 9);
+  --animate-fd-popover-in: fd-popover-in 0.13s ease;
+  --animate-fd-popover-out: fd-popover-out 0.13s ease;
 }
 
 .dark {
@@ -119,4 +129,36 @@
   --hover: rgb(255, 255, 255, 0.1);
   --surface-color: #212121;
   --icon-color: #aaaaaa;
+}
+
+@keyframes fd-popover-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes fd-popover-out {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+
+/* Ensure exit animation is visible by delaying unmount */
+[data-slot="select-content"][data-state="closed"] {
+  animation: var(--animate-fd-popover-out);
+  animation-fill-mode: forwards;
+}
+
+[data-slot="select-content"][data-state="open"] {
+  animation: var(--animate-fd-popover-in);
+  animation-fill-mode: forwards;
 }
