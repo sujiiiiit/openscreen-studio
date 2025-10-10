@@ -12,7 +12,7 @@ import Footer from "@/components/layout/footer";
 export default function App() {
   return (
     <ThemeProvider defaultTheme="light">
-      <TooltipProvider delayDuration={0} >
+      <TooltipProvider delayDuration={0}>
         <div className="h-dvh w-dvw overflow-hidden">
           <TitleBar />
           <ResizablePanelGroup direction="vertical">
