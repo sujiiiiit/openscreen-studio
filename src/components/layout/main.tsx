@@ -12,6 +12,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import PixiVideoPlayer, {
+  type PixiVideoPlayerHandle,
+} from "@/components/layout/pixi/canvas";
+
+import { useMemo, useRef, useState, useEffect } from "react";
+import { usePresentation } from "@/context/presentation-context";
+import { Button } from "../ui/button";
+
 const ASPECT_OPTIONS = [
   { id: "16-9", label: "Wide", ratioLabel: "16:9", width: 16, height: 9 },
   { id: "9-16", label: "Vertical", ratioLabel: "9:16", width: 9, height: 16 },
@@ -20,21 +28,60 @@ const ASPECT_OPTIONS = [
 ];
 
 export default function Main() {
+  const [aspectId, setAspectId] = useState<string>(
+    ASPECT_OPTIONS[0]?.id ?? "16-9",
+  );
+  const pixiRef = useRef<PixiVideoPlayerHandle>(null);
+  const { setIsPresenting, registerPresentationHandler, togglePresentation } =
+    usePresentation();
+
+  const activeAspect = useMemo(() => {
+    return (
+      ASPECT_OPTIONS.find((option) => option.id === aspectId) ??
+      ASPECT_OPTIONS[0]
+    );
+  }, [aspectId]);
+
+  useEffect(() => {
+    const handleToggle = async () => {
+      const handle = pixiRef.current;
+      if (!handle) {
+        return;
+      }
+      try {
+        await handle.toggleFullscreen();
+      } catch (error) {
+        console.error("Failed to toggle fullscreen", error);
+      }
+    };
+
+    registerPresentationHandler(handleToggle);
+  }, [registerPresentationHandler]);
+
   return (
     <main className="flex flex-1 flex-col min-h-0 min-w-0">
       <section
         id="canvas"
         className="flex flex-1 min-h-0 min-w-0 items-center justify-center bg-background p-4"
       >
-        <div className="h-full w-full min-h-0 min-w-0"></div>
+        <div className="h-full w-full min-h-0 min-w-0">
+          <PixiVideoPlayer
+            ref={pixiRef}
+            targetAspectRatio={{
+              width: activeAspect.width,
+              height: activeAspect.height,
+            }}
+            onFullscreenChange={setIsPresenting}
+          />
+        </div>
       </section>
       <section id="controls" className="p-3">
         <div className="h-[var(--titlebar-height)] bg-transparent rounded-md flex flex-row items-center justify-between px-3 gap-2">
           <div className="flex gap-2">
             <Select
-              value={undefined}
+              value={aspectId}
               onValueChange={(value) => {
-                console.log(value);
+                setAspectId(value);
               }}
             >
               <SelectTrigger className="flex flex-nowrap" variant="secondary">
@@ -77,6 +124,9 @@ export default function Main() {
                 ))}
               </SelectContent>
             </Select>
+            <Button onClick={togglePresentation} variant={"secondary"}>
+              Present
+            </Button>
           </div>
         </div>
       </section>
