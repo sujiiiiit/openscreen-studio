@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import Tabs from "./tabs";
 export function BackgroundTabContent() {
   return (
     <section className="space-y-2">
@@ -7,8 +7,7 @@ export function BackgroundTabContent() {
         Adjust canvas fill, gradients, and overlays for your recording surface.
       </p>
       <div className="grid gap-2">
-        <Button variant="secondary">Choose Color</Button>
-        <Button variant="ghost">Upload background</Button>
+        <Tabs />
       </div>
     </section>
   );

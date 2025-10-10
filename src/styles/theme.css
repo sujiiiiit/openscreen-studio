@@ -47,6 +47,7 @@
   --border-light: var(--border-light);
   --animate-fd-popover-in: var(--animate-fd-popover-in);
   --animate-fd-popover-out: var(--animate-fd-popover-out);
+  --color-primary-active-bg: var(--primary-active-bg);
 }
 
 :root {
@@ -87,11 +88,12 @@
   --titlebar-close-hover: rgba(232, 17, 35, 0.9);
   --surface-color: #ffffff;
   --icon-color: #707579;
-  --primary-active: #8774e1;
+  --primary-active: #5d5bd0;
   --border-light: #0d0d0d0d;
   --menu-item-height: calc(var(--spacing) * 9);
   --animate-fd-popover-in: fd-popover-in 0.13s ease;
   --animate-fd-popover-out: fd-popover-out 0.13s ease;
+  --primary-active-bg: #f1f1fb;
 }
 
 .dark {
