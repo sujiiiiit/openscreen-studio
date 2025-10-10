@@ -187,7 +187,7 @@ export default function Sidebar() {
           </motion.div>
         </motion.div>
 
-        <Tooltip>
+        <Tooltip delayDuration={1000}>
           <TooltipTrigger asChild>
             <button
               type="button"
