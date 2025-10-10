@@ -127,7 +127,7 @@ const SquiggleLoader: React.FC<SquiggleLoaderProps> = ({
           0.4 * Math.sin(derivedParams.R_FREQ2 * n + 1.1);
         return Math.max(
           derivedParams.MIN_R,
-          derivedParams.R_BASE + derivedParams.R_VAR * val
+          derivedParams.R_BASE + derivedParams.R_VAR * val,
         );
       };
       const radius = t(e);
@@ -146,7 +146,7 @@ const SquiggleLoader: React.FC<SquiggleLoaderProps> = ({
       const r_time = (t_now - P) / 1000;
       const s_mod = Math.sin(
         2 * Math.PI * modulationParams.modulationSpeed * r_time +
-          modulationParams.modulationPhaseOffset
+          modulationParams.modulationPhaseOffset,
       );
       const u_tempo = tempo + modulationParams.tempoModulation * s_mod;
       const p_accel =
