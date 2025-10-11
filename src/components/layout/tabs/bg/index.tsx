@@ -6,7 +6,7 @@ export function BackgroundTabContent() {
       <p className="text-xs text-muted-foreground">
         Adjust canvas fill, gradients, and overlays for your recording surface.
       </p>
-      <div className="grid gap-2">
+      <div className="grid gap-2 w-full">
         <Tabs />
       </div>
     </section>

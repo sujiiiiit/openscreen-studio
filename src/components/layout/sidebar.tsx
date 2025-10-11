@@ -75,7 +75,7 @@ const TAB_ITEMS: TabItem[] = [
 export default function Sidebar() {
   const tabs = useMemo(() => TAB_ITEMS, []);
   const { activeTab, selectTab, toggle, isOpen } = useSidebarTabs<TabId>(
-    tabs[0].id,
+    tabs[0].id
   );
   const activeIndex = tabs.findIndex((item) => item.id === activeTab);
   const safeActiveIndex = activeIndex === -1 ? 0 : activeIndex;
@@ -98,7 +98,7 @@ export default function Sidebar() {
                     {isActive && (
                       <motion.span
                         layoutId="sidebar-tab-indicator"
-                        className="absolute inset-0 z-[1] rounded-md bg-background shadow-md dark:bg-muted"
+                        className="absolute inset-0 z-[1] rounded-md bg-primary-active-bg dark:bg-muted"
                         transition={{
                           type: "spring",
                           stiffness: 380,
@@ -111,8 +111,8 @@ export default function Sidebar() {
                       size="icon"
                       className={cn(
                         "group relative text-foreground transition",
-                        "hover:bg-background",
-                        isActive ? "z-[2]" : "",
+                        "bg-transparent hover:bg-transparent",
+                        isActive ? "z-[2]" : ""
                       )}
                     >
                       <span

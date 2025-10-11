@@ -66,7 +66,7 @@ export function Tabs({ defaultValue, children, className }: TabsProps) {
   );
 
   return (
-    <div className={`flex flex-col gap-6 ${className ?? ""}`}>
+    <div className={`flex w-full flex-col gap-6 ${className ?? ""}`}>
       {Array.isArray(children)
         ? children.map((child) =>
             typeof child === "object" && "type" in child
@@ -175,7 +175,7 @@ export function TabsContentWrapper({
 
   return (
     <div
-      className={`relative min-h-[200px] overflow-hidden ${className ?? ""}`}
+      className={`relative ${className ?? ""}`}
     >
       {tabContents.map(({ value, content }) => {
         const isActive = value === activeTab;
