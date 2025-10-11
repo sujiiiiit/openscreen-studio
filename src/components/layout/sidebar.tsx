@@ -177,8 +177,8 @@ export default function Sidebar() {
                       pointerEvents: isActive && isOpen ? "auto" : "none",
                     }}
                   >
-                    <ScrollArea className="h-full">
-                      <div className="space-y-6 p-4">{tab.content}</div>
+                    <ScrollArea className="w-full h-full">
+                      <div className="w-full space-y-6 p-4">{tab.content}</div>
                     </ScrollArea>
                   </motion.div>
                 );

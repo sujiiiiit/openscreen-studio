@@ -175,7 +175,7 @@ export function TabsContentWrapper({
 
   return (
     <div
-      className={`relative ${className ?? ""}`}
+      className={`flex ${className ?? ""}`}
     >
       {tabContents.map(({ value, content }) => {
         const isActive = value === activeTab;
@@ -187,7 +187,7 @@ export function TabsContentWrapper({
         return (
           <motion.div
             key={value}
-            className="absolute inset-0 w-full"
+            className={`w-full ${isActive ? "block" : "hidden"} `}
             initial={false}
             animate={{
               opacity: isActive ? 1 : 0,
