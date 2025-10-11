@@ -13,6 +13,14 @@ type TabsProps = {
   defaultValue: string;
   children: ReactNode;
   className?: string;
+  /**
+   * Controlled mode: external value state
+   */
+  value?: string;
+  /**
+   * Controlled mode: value change handler
+   */
+  onValueChange?: (value: string) => void;
 };
 
 type TabsListProps = {
@@ -45,14 +53,93 @@ function useTabsContext() {
   return context;
 }
 
+/**
+ * Hook to access tab state from within a Tabs component.
+ * Use this to create custom tab triggers.
+ * 
+ * @example
+ * ```tsx
+ * function CustomTabTrigger({ value, children }) {
+ *   const { activeTab, setActiveTab } = useTabs();
+ *   return (
+ *     <button 
+ *       onClick={() => setActiveTab(value)}
+ *       className={activeTab === value ? 'active' : ''}
+ *     >
+ *       {children}
+ *     </button>
+ *   );
+ * }
+ * ```
+ */
 export const useTabs = useTabsContext;
 
-export function Tabs({ defaultValue, children, className }: TabsProps) {
-  const [activeTab, setActiveTabState] = useState(defaultValue);
+/**
+ * Tabs component - provides context for tab state management.
+ * Supports both uncontrolled (defaultValue) and controlled (value + onValueChange) modes.
+ * 
+ * @example Uncontrolled with native triggers
+ * ```tsx
+ * <Tabs defaultValue="tab1">
+ *   <TabsList>
+ *     <TabsTrigger value="tab1">Tab 1</TabsTrigger>
+ *     <TabsTrigger value="tab2">Tab 2</TabsTrigger>
+ *   </TabsList>
+ *   <TabsContentWrapper>
+ *     <TabsContent value="tab1">Content 1</TabsContent>
+ *     <TabsContent value="tab2">Content 2</TabsContent>
+ *   </TabsContentWrapper>
+ * </Tabs>
+ * ```
+ * 
+ * @example Uncontrolled with custom triggers
+ * ```tsx
+ * <Tabs defaultValue="tab1">
+ *   <CustomTriggers />
+ *   <TabsContentWrapper>
+ *     <TabsContent value="tab1">Content 1</TabsContent>
+ *     <TabsContent value="tab2">Content 2</TabsContent>
+ *   </TabsContentWrapper>
+ * </Tabs>
+ * 
+ * function CustomTriggers() {
+ *   const { activeTab, setActiveTab } = useTabs();
+ *   return (
+ *     <div>
+ *       <button onClick={() => setActiveTab("tab1")}>Custom Tab 1</button>
+ *       <button onClick={() => setActiveTab("tab2")}>Custom Tab 2</button>
+ *     </div>
+ *   );
+ * }
+ * ```
+ * 
+ * @example Controlled mode
+ * ```tsx
+ * const [tab, setTab] = useState("tab1");
+ * <Tabs value={tab} onValueChange={setTab} defaultValue="tab1">
+ *   <CustomTriggers />
+ *   <TabsContentWrapper>
+ *     <TabsContent value="tab1">Content 1</TabsContent>
+ *     <TabsContent value="tab2">Content 2</TabsContent>
+ *   </TabsContentWrapper>
+ * </Tabs>
+ * ```
+ */
+export function Tabs({ defaultValue, children, className, value: controlledValue, onValueChange }: TabsProps) {
+  const [internalActiveTab, setInternalActiveTab] = useState(defaultValue);
+  
+  // Use controlled value if provided, otherwise use internal state
+  const activeTab = controlledValue ?? internalActiveTab;
 
   const setActiveTab = useCallback((value: string) => {
-    setActiveTabState((prev) => (prev === value ? prev : value));
-  }, []);
+    if (onValueChange) {
+      // Controlled mode
+      onValueChange(value);
+    } else {
+      // Uncontrolled mode
+      setInternalActiveTab((prev) => (prev === value ? prev : value));
+    }
+  }, [onValueChange]);
 
   const orderedTabValues: string[] = [];
   if (Array.isArray(children)) {
