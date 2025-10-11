@@ -21,7 +21,7 @@ import {
   AudioTabContent,
   BackgroundTabContent,
   CursorTabContent,
-  SubtitleTabContent,
+  TranscribeTabContent,
   TransitionTabContent,
   VideoTabContent,
 } from "./tabs";
@@ -56,7 +56,7 @@ const TAB_ITEMS: TabItem[] = [
     id: "subtitle",
     label: "Subtitle",
     icon: <SubtitleIcon />,
-    content: <SubtitleTabContent />,
+    content: <TranscribeTabContent />,
   },
   {
     id: "audio",

@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useCallback, type ReactNode } from "react";
+import {
+  useState,
+  useCallback,
+  type ReactNode,
+  createContext,
+  useContext,
+} from "react";
 import { motion } from "framer-motion";
 
 type TabsProps = {
@@ -24,12 +30,30 @@ type TabsContentProps = {
   children: ReactNode;
 };
 
-// Context-like pattern using simple props composition
-export function Tabs({ defaultValue, children, className }: TabsProps) {
-  const [activeTab, setActiveTab] = useState(defaultValue);
+type TabsContextValue = {
+  activeTab: string;
+  setActiveTab: (value: string) => void;
+};
 
-  // Build an ordered list of tab values from any TabsList children so we can
-  // compute animation direction based on visual order (indices).
+const TabsContext = createContext<TabsContextValue | null>(null);
+
+function useTabsContext() {
+  const context = useContext(TabsContext);
+  if (!context) {
+    throw new Error("useTabs must be used within a Tabs component.");
+  }
+  return context;
+}
+
+export const useTabs = useTabsContext;
+
+export function Tabs({ defaultValue, children, className }: TabsProps) {
+  const [activeTab, setActiveTabState] = useState(defaultValue);
+
+  const setActiveTab = useCallback((value: string) => {
+    setActiveTabState((prev) => (prev === value ? prev : value));
+  }, []);
+
   const orderedTabValues: string[] = [];
   if (Array.isArray(children)) {
     children.forEach((child) => {
@@ -57,38 +81,32 @@ export function Tabs({ defaultValue, children, className }: TabsProps) {
     });
   }
 
-  const handleChange = useCallback(
-    (value: string) => {
-      if (value === activeTab) return;
-      setActiveTab(value);
-    },
-    [activeTab],
-  );
-
   return (
-    <div className={`flex w-full flex-col gap-6 ${className ?? ""}`}>
-      {Array.isArray(children)
-        ? children.map((child) =>
-            typeof child === "object" && "type" in child
-              ? child.type === TabsList
-                ? {
-                    ...child,
-                    props: {
-                      ...child.props,
-                      activeTab,
-                      onChange: handleChange,
-                    },
-                  }
-                : child.type === TabsContentWrapper
+    <TabsContext.Provider value={{ activeTab, setActiveTab }}>
+      <div className={`flex w-full flex-col gap-6 ${className ?? ""}`}>
+        {Array.isArray(children)
+          ? children.map((child) =>
+              typeof child === "object" && "type" in child
+                ? child.type === TabsList
                   ? {
                       ...child,
-                      props: { ...child.props, activeTab },
+                      props: {
+                        ...child.props,
+                        activeTab,
+                        onChange: setActiveTab,
+                      },
                     }
-                  : child
-              : child,
-          )
-        : children}
-    </div>
+                  : child.type === TabsContentWrapper
+                    ? {
+                        ...child,
+                        props: { ...child.props, activeTab },
+                      }
+                    : child
+                : child
+            )
+          : children}
+      </div>
+    </TabsContext.Provider>
   );
 }
 
@@ -98,6 +116,10 @@ export function TabsList({
   activeTab,
   onChange,
 }: TabsListProps & { activeTab?: string; onChange?: (v: string) => void }) {
+  const context = useContext(TabsContext);
+  const resolvedActiveTab = activeTab ?? context?.activeTab;
+  const resolvedOnChange = onChange ?? context?.setActiveTab;
+
   return (
     <div className={`flex items-center justify-between ${className ?? ""}`}>
       {Array.isArray(children)
@@ -105,9 +127,13 @@ export function TabsList({
             typeof child === "object" && "props" in child
               ? {
                   ...child,
-                  props: { ...child.props, activeTab, onChange },
+                  props: {
+                    ...child.props,
+                    activeTab: resolvedActiveTab,
+                    onChange: resolvedOnChange,
+                  },
                 }
-              : child,
+              : child
           )
         : children}
     </div>
@@ -120,12 +146,15 @@ export function TabsTrigger({
   activeTab,
   onChange,
 }: TabsTriggerProps & { activeTab?: string; onChange?: (v: string) => void }) {
-  const isActive = value === activeTab;
+  const context = useContext(TabsContext);
+  const resolvedActiveTab = activeTab ?? context?.activeTab;
+  const resolvedOnChange = onChange ?? context?.setActiveTab;
+  const isActive = value === resolvedActiveTab;
 
   return (
     <button
       type="button"
-      onClick={() => onChange?.(value)}
+      onClick={() => resolvedOnChange?.(value)}
       className="relative rounded-full px-4 py-2 text-sm transition-colors"
     >
       {isActive && (
@@ -153,9 +182,10 @@ export function TabsContentWrapper({
   className?: string;
   activeTab?: string;
 }) {
+  const context = useContext(TabsContext);
+  const resolvedActiveTab = activeTab ?? context?.activeTab;
   const tabContents: { value: string; content: ReactNode }[] = [];
 
-  // Extract tab contents from children
   if (Array.isArray(children)) {
     children.forEach((child) => {
       if (
@@ -174,24 +204,27 @@ export function TabsContentWrapper({
   }
 
   return (
-    <div
-      className={`flex ${className ?? ""}`}
-    >
+    <div className={`flex ${className ?? ""}`}>
       {tabContents.map(({ value, content }) => {
-        const isActive = value === activeTab;
+        const isActive = value === resolvedActiveTab;
         const tabIndex = tabContents.findIndex((tab) => tab.value === value);
-        const activeIndex = tabContents.findIndex(
-          (tab) => tab.value === activeTab,
-        );
+        const activeIndex = resolvedActiveTab
+          ? tabContents.findIndex((tab) => tab.value === resolvedActiveTab)
+          : -1;
 
         return (
           <motion.div
             key={value}
-            className={`w-full ${isActive ? "block" : "hidden"} `}
+            className={`w-full ${isActive ? "relative" : "absolute"} `}
             initial={false}
             animate={{
               opacity: isActive ? 1 : 0,
-              x: isActive ? 0 : tabIndex > activeIndex ? 32 : -32,
+              x:
+                isActive || activeIndex === -1
+                  ? 0
+                  : tabIndex > activeIndex
+                    ? 32
+                    : -32,
               pointerEvents: isActive ? "auto" : "none",
             }}
             transition={{
@@ -209,8 +242,5 @@ export function TabsContentWrapper({
 }
 
 export function TabsContent(_props: TabsContentProps) {
-  // This component serves as a declarative way to define tab content
-  // The actual rendering is handled by TabsContentWrapper
-  // It exists only to be parsed by the wrapper component
   return null;
 }
