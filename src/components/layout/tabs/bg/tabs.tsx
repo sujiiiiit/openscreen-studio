@@ -5,6 +5,8 @@ import {
   TabsContent,
   TabsContentWrapper,
 } from "@/components/ui/tabs";
+import SquiggleLoader from "@/components/ui/squiggle-loader";
+import { TextShimmer } from "@/components/ui/text-shimmer";
 
 export default function BackgroundTabs() {
   return (
@@ -17,8 +19,11 @@ export default function BackgroundTabs() {
       </TabsList>
       <TabsContentWrapper>
         <TabsContent value="wallpaper">
-          <div className="rounded-md border border-dashed p-6 text-sm text-slate-500">
-            Select from curated wallpapers or use your own images.
+          <div className="rounded-md border border-dashed p-6 text-sm flex items-center gap-2">
+            <SquiggleLoader strokeColor="#86837e" />
+            <TextShimmer duration={1}>
+              Generating
+            </TextShimmer>
           </div>
         </TabsContent>
 

@@ -94,6 +94,8 @@
   --animate-fd-popover-in: fd-popover-in 0.13s ease;
   --animate-fd-popover-out: fd-popover-out 0.13s ease;
   --primary-active-bg: #f1f1fb;
+  --shimmer-text-faded-color: #d4d3cf;
+  --shimmer-text-highlight-color: #86837e;
 }
 
 .dark {
@@ -163,4 +165,13 @@
 [data-slot="select-content"][data-state="open"] {
   animation: var(--animate-fd-popover-in);
   animation-fill-mode: forwards;
+}
+
+@keyframes text-shimmer {
+  0% {
+    background-position: 200% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
 }
