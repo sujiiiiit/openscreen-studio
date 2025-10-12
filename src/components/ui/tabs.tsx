@@ -302,7 +302,7 @@ export function TabsContentWrapper({
         return (
           <motion.div
             key={value}
-            className={`w-full ${isActive ? "relative" : "absolute"} `}
+            className={`w-full ${isActive ? "relative z-10" : "absolute"} `}
             initial={false}
             animate={{
               opacity: isActive ? 1 : 0,
