@@ -17,7 +17,7 @@ import {
   type ForwardedRef,
 } from "react";
 
-import VideoTexture from "./video";
+import CompositeScene from "./composite";
 
 extend({ Container, Graphics, Sprite });
 
@@ -339,7 +339,7 @@ export const PixiApp = forwardRef(function PixiVideoPlayer(
     >
       <div
         ref={stageWrapperRef}
-        className="relative flex items-center justify-center overflow-hidden rounded bg-black"
+        className="relative flex items-center justify-center overflow-hidden rounded"
         style={viewportStyle}
       >
         {shouldRenderStage && (
@@ -349,12 +349,14 @@ export const PixiApp = forwardRef(function PixiVideoPlayer(
             height={viewportSize.height}
             resolution={resolution}
             autoDensity
+            backgroundAlpha={0}
+            antialias={true}
             onInit={(app) => {
               appRef.current = app;
               app.renderer.resolution = resolution;
             }}
           >
-            <VideoTexture
+            <CompositeScene
               onVideoDimensions={handleVideoDimensions}
               viewportSize={viewportSize}
             />

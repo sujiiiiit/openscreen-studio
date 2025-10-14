@@ -5,6 +5,7 @@ import { Squircle } from "@squircle-js/react";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
+import { useBackground } from "@/context/background-context";
 
 const wallpapers = [
   { value: "1", label: "ipad-17-dark" },
@@ -27,7 +28,17 @@ const wallpapers = [
 
 export default function Component() {
   const id = useId();
-  const [selectedValue, setSelectedValue] = useState("1");
+  const { wallpaperUrl, setWallpaperUrl } = useBackground();
+  
+  // Find current selected value from URL
+  const getCurrentValue = () => {
+    const currentWallpaper = wallpapers.find(
+      (w) => wallpaperUrl === `/assets/backgrounds/${w.label}.jpg`
+    );
+    return currentWallpaper?.value || "1";
+  };
+
+  const [selectedValue, setSelectedValue] = useState(getCurrentValue());
   const [isOpen, setIsOpen] = useState(false);
   const [contentHeight, setContentHeight] = useState(130);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -41,6 +52,15 @@ export default function Component() {
       }
     }
   }, [isOpen]);
+
+  const handleValueChange = (value: string) => {
+    setSelectedValue(value);
+    const wallpaper = wallpapers.find((w) => w.value === value);
+    if (wallpaper) {
+      // Use high-resolution image for canvas
+      setWallpaperUrl(`/assets/backgrounds/${wallpaper.label}.jpg`);
+    }
+  };
 
   return (
     <>
@@ -62,7 +82,7 @@ export default function Component() {
           <RadioGroup
             className="w-full grid grid-cols-5 gap-2 relative"
             value={selectedValue}
-            onValueChange={setSelectedValue}
+            onValueChange={handleValueChange}
           >
             {wallpapers.map((item) => (
               <label className="w-full" key={`${id}-${item.value}`}>
@@ -73,7 +93,7 @@ export default function Component() {
                     "relative outline-none aspect-square cursor-pointer overflow-hidden group"
                   )}
                   style={{
-                    backgroundImage: `url(/assets/background/${item.label}.jpg)`,
+                    backgroundImage: `url(/assets/placeholder/${item.label}.jpg)`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",

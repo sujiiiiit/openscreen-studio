@@ -172,7 +172,7 @@ export default function Sidebar() {
                       stiffness: 260,
                       damping: 30,
                     }}
-                    className="absolute inset-0"
+                    className={`absolute inset-0 ${isActive ? "z-10" : "z-0"}`}
                     style={{
                       pointerEvents: isActive && isOpen ? "auto" : "none",
                     }}

@@ -64,6 +64,20 @@ export class WindowManager {
       },
     });
 
+    // Set CSP headers for proper PixiJS worker support
+    this.mainWindow.webContents.session.webRequest.onHeadersReceived(
+      (details, callback) => {
+        callback({
+          responseHeaders: {
+            ...details.responseHeaders,
+            "Content-Security-Policy": [
+              "default-src 'self'; script-src 'self' 'unsafe-inline' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file:; font-src 'self'; connect-src 'self' ws: wss: https://huggingface.co; media-src 'self' blob: data: file:;",
+            ],
+          },
+        });
+      },
+    );
+
     this.setupWindowEvents(this.mainWindow);
     this.loadContent(
       this.mainWindow,

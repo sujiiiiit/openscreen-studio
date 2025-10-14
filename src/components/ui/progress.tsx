@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 
 const progressVariants = cva(
-  "relative overflow-hidden rounded-full bg-secondary",
+  "relative overflow-hidden rounded-full bg-primary-active-bg",
   {
     variants: {
       variant: {
@@ -36,8 +36,8 @@ const progressIndicatorVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary",
-        primary: "bg-primary",
+        default: "bg-primary-active",
+        primary: "bg-primary-active",
         secondary: "bg-foreground",
         destructive: "bg-destructive",
         outline: "bg-primary",

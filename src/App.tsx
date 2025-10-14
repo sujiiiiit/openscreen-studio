@@ -11,32 +11,36 @@ import Main from "@/components/layout/main";
 import Footer from "@/components/layout/footer";
 import { PlaybackProvider } from "@/context/playback-context";
 import { PresentationProvider } from "@/context/presentation-context";
+import { BackgroundProvider } from "@/context/background-context";
+
 export default function App() {
   return (
     <ThemeProvider defaultTheme="light">
       <TooltipProvider delayDuration={0}>
         <PresentationProvider>
           <PlaybackProvider>
-            <div className="h-dvh w-dvw overflow-hidden">
-              <TitleBar />
-              <ResizablePanelGroup direction="vertical">
-                <ResizablePanel order={1}>
-                  <section className="flex h-full flex-row">
-                    <Sidebar />
-                    <Main />
-                  </section>
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel
-                  minSize={30}
-                  order={2}
-                  defaultSize={31}
-                  maxSize={60}
-                >
-                  <Footer />
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </div>
+            <BackgroundProvider>
+              <div className="h-dvh w-dvw overflow-hidden">
+                <TitleBar />
+                <ResizablePanelGroup direction="vertical">
+                  <ResizablePanel order={1}>
+                    <section className="flex h-full flex-row">
+                      <Sidebar />
+                      <Main />
+                    </section>
+                  </ResizablePanel>
+                  <ResizableHandle withHandle />
+                  <ResizablePanel
+                    minSize={30}
+                    order={2}
+                    defaultSize={31}
+                    maxSize={60}
+                  >
+                    <Footer />
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              </div>
+            </BackgroundProvider>
           </PlaybackProvider>
         </PresentationProvider>
       </TooltipProvider>
