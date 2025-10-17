@@ -37,7 +37,7 @@ const DEFAULT_VIDEO_DIMENSIONS: Dimensions = {
 };
 const toResolution = () =>
   typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-
+console.log("toResolution", toResolution());
 function computeViewportSize(
   container: Dimensions,
   aspectRatio: number,
