@@ -28,20 +28,32 @@ const wallpapers = [
 
 export default function Component() {
   const id = useId();
-  const { wallpaperUrl, setWallpaperUrl } = useBackground();
-  
+  const { wallpaperUrl, setWallpaperUrl, setBackgroundMode, backgroundMode } =
+    useBackground();
+
   // Find current selected value from URL
   const getCurrentValue = () => {
+    // Only show selection if we're in wallpaper mode
+    if (backgroundMode !== "wallpaper") {
+      return "";
+    }
+
     const currentWallpaper = wallpapers.find(
-      (w) => wallpaperUrl === `/assets/backgrounds/${w.label}.jpg`
+      (w) => wallpaperUrl === `/assets/backgrounds/${w.label}.jpg`,
     );
-    return currentWallpaper?.value || "1";
+    return currentWallpaper?.value || "";
   };
 
   const [selectedValue, setSelectedValue] = useState(getCurrentValue());
   const [isOpen, setIsOpen] = useState(false);
   const [contentHeight, setContentHeight] = useState(130);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Update selected value when backgroundMode changes
+  useEffect(() => {
+    setSelectedValue(getCurrentValue());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [backgroundMode, wallpaperUrl]);
 
   useEffect(() => {
     if (contentRef.current) {
@@ -59,6 +71,8 @@ export default function Component() {
     if (wallpaper) {
       // Use high-resolution image for canvas
       setWallpaperUrl(`/assets/backgrounds/${wallpaper.label}.jpg`);
+      // Set background mode to wallpaper
+      setBackgroundMode("wallpaper");
     }
   };
 
@@ -72,7 +86,7 @@ export default function Component() {
           <div
             className={cn(
               "absolute left-0 right-0 bottom-0 h-[50px] z-10 pointer-events-none transition-opacity duration-300",
-              isOpen ? "opacity-0" : "opacity-100"
+              isOpen ? "opacity-0" : "opacity-100",
             )}
             style={{
               background:
@@ -90,7 +104,7 @@ export default function Component() {
                   cornerRadius={15}
                   cornerSmoothing={2}
                   className={cn(
-                    "relative outline-none aspect-square cursor-pointer overflow-hidden group"
+                    "relative outline-none aspect-square cursor-pointer overflow-hidden group",
                   )}
                   style={{
                     backgroundImage: `url(/assets/placeholder/${item.label}.jpg)`,
@@ -109,13 +123,17 @@ export default function Component() {
                   <div
                     className={cn(
                       "absolute inset-0 bg-black/20 transition-opacity duration-200 z-10",
-                      selectedValue === item.value ? "opacity-100" : "opacity-0"
+                      selectedValue === item.value
+                        ? "opacity-100"
+                        : "opacity-0",
                     )}
                   />
                   <div
                     className={cn(
                       "absolute inset-0 flex items-center justify-center transition-opacity duration-200 z-10",
-                      selectedValue === item.value ? "opacity-100" : "opacity-0"
+                      selectedValue === item.value
+                        ? "opacity-100"
+                        : "opacity-0",
                     )}
                   >
                     <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">

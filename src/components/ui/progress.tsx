@@ -15,8 +15,7 @@ const progressVariants = cva(
         primary: "bg-primary/10",
         secondary: "bg-secondary",
         destructive: "bg-destructive/10",
-        outline:
-          "bg-accent border border-border",
+        outline: "bg-accent border border-border",
       },
       size: {
         sm: "h-1.5",
@@ -104,11 +103,7 @@ const Progress = React.forwardRef<
       const strokeDashoffset = circumference - (progress / 100) * circumference;
       return (
         <div className="space-y-2">
-          {label && (
-            <div className="text-sm  text-foreground">
-              {label}
-            </div>
-          )}
+          {label && <div className="text-sm  text-foreground">{label}</div>}
           <div className={cn(circularProgressVariants({ size }), className)}>
             <svg
               width={circleSize}
@@ -181,11 +176,7 @@ const Progress = React.forwardRef<
     }
     return (
       <div className="space-y-2">
-        {label && (
-          <div className="text-sm  text-foreground">
-            {label}
-          </div>
-        )}
+        {label && <div className="text-sm  text-foreground">{label}</div>}
         <ProgressPrimitive.Root
           ref={ref}
           className={cn(progressVariants({ variant, size }), className)}

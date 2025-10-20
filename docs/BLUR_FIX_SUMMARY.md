@@ -1,10 +1,13 @@
 # Blur Quality Fix - Summary
 
 ## Problem
+
 Wallpaper blur was showing **pixelated/blocky appearance** instead of smooth, grainy Gaussian-like blur.
 
 ## Root Cause
+
 Low PixiJS BlurFilter settings:
+
 ```typescript
 // OLD (pixelated)
 quality: 3,      // Too low
@@ -12,6 +15,7 @@ kernelSize: 5,   // Too small
 ```
 
 ## Solution
+
 Updated to high-quality settings in `wallpaper.tsx`:
 
 ```typescript
@@ -25,17 +29,19 @@ kernelSize: 15,  // Maximum kernel = samples 225 pixels per pass
 ### File: `src/components/layout/pixi/wallpaper.tsx`
 
 **Before:**
+
 ```typescript
 const blurFilter = useMemo(() => {
   return new BlurFilter({
     strength: blurStrength,
-    quality: 3,      // ❌ Pixelated
-    kernelSize: 5,   // ❌ Blocky
+    quality: 3, // ❌ Pixelated
+    kernelSize: 5, // ❌ Blocky
   });
 }, [blurStrength]);
 ```
 
 **After:**
+
 ```typescript
 // Create blur filter with adjustable strength
 // Higher quality (4-8) and larger kernelSize (9-15) produce smoother, grainy blur
@@ -43,8 +49,8 @@ const blurFilter = useMemo(() => {
 const blurFilter = useMemo(() => {
   return new BlurFilter({
     strength: blurStrength,
-    quality: 8,      // ✅ Smoother blur (default: 4, max: 8+)
-    kernelSize: 15,  // ✅ Grainy/Gaussian blur (options: 5, 7, 9, 11, 13, 15)
+    quality: 8, // ✅ Smoother blur (default: 4, max: 8+)
+    kernelSize: 15, // ✅ Grainy/Gaussian blur (options: 5, 7, 9, 11, 13, 15)
   });
 }, [blurStrength]);
 ```
@@ -52,12 +58,14 @@ const blurFilter = useMemo(() => {
 ## Results
 
 ### Before (quality: 3, kernelSize: 5)
+
 - ❌ Pixelated, blocky appearance
 - ❌ Visible square artifacts
 - ❌ Banding at high blur strengths
 - ❌ Unnatural blur distribution
 
 ### After (quality: 8, kernelSize: 15) ✨
+
 - ✅ Smooth, grainy texture
 - ✅ Natural Gaussian-like blur
 - ✅ No visible pixelation
@@ -66,10 +74,10 @@ const blurFilter = useMemo(() => {
 
 ## Performance Impact
 
-| Setting | GPU Load | Frame Time | Quality |
-|---------|----------|------------|---------|
-| Old (3, 5) | Low | ~2ms | Poor ❌ |
-| New (8, 15) | High | ~6-8ms | Excellent ✅ |
+| Setting     | GPU Load | Frame Time | Quality      |
+| ----------- | -------- | ---------- | ------------ |
+| Old (3, 5)  | Low      | ~2ms       | Poor ❌      |
+| New (8, 15) | High     | ~6-8ms     | Excellent ✅ |
 
 **Note:** Modern GPUs handle this easily. The slight performance increase is worth the dramatic quality improvement.
 
@@ -78,11 +86,13 @@ const blurFilter = useMemo(() => {
 ### What Changed
 
 **Quality: 3 → 8**
+
 - Blur passes: 6 → 16 (quality × 2)
 - More passes = smoother gradients
 - Eliminates banding artifacts
 
 **KernelSize: 5 → 15**
+
 - Pixel samples: 25 → 225 per pass
 - More samples = better smoothness
 - Creates natural grain texture
@@ -98,6 +108,7 @@ const blurFilter = useMemo(() => {
 Created comprehensive guide: `docs/BLUR_QUALITY_GUIDE.md`
 
 **Covers:**
+
 - Parameter explanations (strength, quality, kernelSize)
 - Visual comparisons (pixelated vs smooth)
 - Performance considerations
@@ -161,12 +172,12 @@ const qualitySettings = {
 
 ## Summary
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| Appearance | Pixelated ❌ | Smooth ✅ |
-| Quality | Poor | Excellent |
-| Grain | Blocky | Natural |
-| Performance | Fast | Good |
-| User Experience | Bad | Professional |
+| Aspect          | Before       | After        |
+| --------------- | ------------ | ------------ |
+| Appearance      | Pixelated ❌ | Smooth ✅    |
+| Quality         | Poor         | Excellent    |
+| Grain           | Blocky       | Natural      |
+| Performance     | Fast         | Good         |
+| User Experience | Bad          | Professional |
 
 **Result:** Wallpaper blur now has professional, Gaussian-like quality! 🎉

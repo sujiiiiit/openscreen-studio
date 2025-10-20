@@ -1,28 +1,33 @@
 /**
  * SIMPLE EXAMPLE: Custom Triggers with Tab Content
- * 
+ *
  * This is the simplest possible example of using custom triggers
  * while keeping the native TabsContentWrapper functionality.
  */
 
-import { Tabs, TabsContentWrapper, TabsContent, useTabs } from "../../src/components/ui/tabs";
+import {
+  Tabs,
+  TabsContentWrapper,
+  TabsContent,
+  useTabs,
+} from "../../src/components/ui/tabs";
 
 // Step 1: Create your custom trigger component
-function MyCustomTrigger({ 
-  value, 
-  label, 
-  emoji 
-}: { 
-  value: string; 
-  label: string; 
+function MyCustomTrigger({
+  value,
+  label,
+  emoji,
+}: {
+  value: string;
+  label: string;
   emoji: string;
 }) {
   // Get the tab state using the useTabs hook
   const { activeTab, setActiveTab } = useTabs();
-  
+
   // Check if this trigger is active
   const isActive = activeTab === value;
-  
+
   // Render your custom button/trigger
   return (
     <button
@@ -51,27 +56,49 @@ export default function SimpleCustomTabsExample() {
       <div style={{ display: "flex", gap: "12px", marginBottom: "24px" }}>
         <MyCustomTrigger value="profile" label="My Profile" emoji="👤" />
         <MyCustomTrigger value="messages" label="Messages" emoji="💬" />
-        <MyCustomTrigger value="notifications" label="Notifications" emoji="🔔" />
+        <MyCustomTrigger
+          value="notifications"
+          label="Notifications"
+          emoji="🔔"
+        />
       </div>
 
       {/* Keep the native TabsContentWrapper - it handles all the magic! */}
       <TabsContentWrapper>
         <TabsContent value="profile">
-          <div style={{ padding: "20px", border: "1px solid #ddd", borderRadius: "8px" }}>
+          <div
+            style={{
+              padding: "20px",
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+            }}
+          >
             <h2>Profile Content</h2>
             <p>This is your profile page content.</p>
           </div>
         </TabsContent>
 
         <TabsContent value="messages">
-          <div style={{ padding: "20px", border: "1px solid #ddd", borderRadius: "8px" }}>
+          <div
+            style={{
+              padding: "20px",
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+            }}
+          >
             <h2>Messages Content</h2>
             <p>This is your messages page content.</p>
           </div>
         </TabsContent>
 
         <TabsContent value="notifications">
-          <div style={{ padding: "20px", border: "1px solid #ddd", borderRadius: "8px" }}>
+          <div
+            style={{
+              padding: "20px",
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+            }}
+          >
             <h2>Notifications Content</h2>
             <p>This is your notifications page content.</p>
           </div>

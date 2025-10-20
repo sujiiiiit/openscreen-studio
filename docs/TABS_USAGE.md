@@ -21,19 +21,25 @@ Tabs (Context Provider)
 ### 1. Standard Usage (Native Triggers)
 
 ```tsx
-import { Tabs, TabsList, TabsTrigger, TabsContentWrapper, TabsContent } from '@/components/ui/tabs';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContentWrapper,
+  TabsContent,
+} from "@/components/ui/tabs";
 
 <Tabs defaultValue="tab1">
   <TabsList>
     <TabsTrigger value="tab1">Tab 1</TabsTrigger>
     <TabsTrigger value="tab2">Tab 2</TabsTrigger>
   </TabsList>
-  
+
   <TabsContentWrapper>
     <TabsContent value="tab1">Content 1</TabsContent>
     <TabsContent value="tab2">Content 2</TabsContent>
   </TabsContentWrapper>
-</Tabs>
+</Tabs>;
 ```
 
 **When to use:** Simple tab interfaces with standard trigger styling.
@@ -43,22 +49,27 @@ import { Tabs, TabsList, TabsTrigger, TabsContentWrapper, TabsContent } from '@/
 ### 2. Custom Triggers Only (Your Use Case!)
 
 ```tsx
-import { Tabs, TabsContentWrapper, TabsContent, useTabs } from '@/components/ui/tabs';
+import {
+  Tabs,
+  TabsContentWrapper,
+  TabsContent,
+  useTabs,
+} from "@/components/ui/tabs";
 
 function CustomTriggers() {
   const { activeTab, setActiveTab } = useTabs();
-  
+
   return (
     <div className="my-custom-layout">
-      <button 
-        onClick={() => setActiveTab('tab1')}
-        className={activeTab === 'tab1' ? 'active' : ''}
+      <button
+        onClick={() => setActiveTab("tab1")}
+        className={activeTab === "tab1" ? "active" : ""}
       >
         Custom Tab 1
       </button>
-      <button 
-        onClick={() => setActiveTab('tab2')}
-        className={activeTab === 'tab2' ? 'active' : ''}
+      <button
+        onClick={() => setActiveTab("tab2")}
+        className={activeTab === "tab2" ? "active" : ""}
       >
         Custom Tab 2
       </button>
@@ -70,38 +81,7 @@ export function MyComponent() {
   return (
     <Tabs defaultValue="tab1">
       <CustomTriggers />
-      
-      <TabsContentWrapper>
-        <TabsContent value="tab1">Content 1</TabsContent>
-        <TabsContent value="tab2">Content 2</TabsContent>
-      </TabsContentWrapper>
-    </Tabs>
-  );
-}
-```
 
-**When to use:** 
-- Custom trigger designs
-- Triggers in different locations (sidebar, header, etc.)
-- Non-button triggers (cards, images, etc.)
-- Complex layouts
-
----
-
-### 3. Controlled Mode (External State)
-
-```tsx
-import { useState } from 'react';
-import { Tabs, TabsContentWrapper, TabsContent } from '@/components/ui/tabs';
-
-function MyComponent() {
-  const [currentTab, setCurrentTab] = useState('tab1');
-  
-  return (
-    <Tabs value={currentTab} onValueChange={setCurrentTab} defaultValue="tab1">
-      <button onClick={() => setCurrentTab('tab1')}>Tab 1</button>
-      <button onClick={() => setCurrentTab('tab2')}>Tab 2</button>
-      
       <TabsContentWrapper>
         <TabsContent value="tab1">Content 1</TabsContent>
         <TabsContent value="tab2">Content 2</TabsContent>
@@ -112,6 +92,39 @@ function MyComponent() {
 ```
 
 **When to use:**
+
+- Custom trigger designs
+- Triggers in different locations (sidebar, header, etc.)
+- Non-button triggers (cards, images, etc.)
+- Complex layouts
+
+---
+
+### 3. Controlled Mode (External State)
+
+```tsx
+import { useState } from "react";
+import { Tabs, TabsContentWrapper, TabsContent } from "@/components/ui/tabs";
+
+function MyComponent() {
+  const [currentTab, setCurrentTab] = useState("tab1");
+
+  return (
+    <Tabs value={currentTab} onValueChange={setCurrentTab} defaultValue="tab1">
+      <button onClick={() => setCurrentTab("tab1")}>Tab 1</button>
+      <button onClick={() => setCurrentTab("tab2")}>Tab 2</button>
+
+      <TabsContentWrapper>
+        <TabsContent value="tab1">Content 1</TabsContent>
+        <TabsContent value="tab2">Content 2</TabsContent>
+      </TabsContentWrapper>
+    </Tabs>
+  );
+}
+```
+
+**When to use:**
+
 - Need to control tab state from parent
 - Programmatic tab switching
 - Integration with forms or wizards
@@ -122,11 +135,20 @@ function MyComponent() {
 ### 4. Mixed Approach
 
 ```tsx
-import { Tabs, TabsList, TabsTrigger, TabsContentWrapper, TabsContent, useTabs } from '@/components/ui/tabs';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContentWrapper,
+  TabsContent,
+  useTabs,
+} from "@/components/ui/tabs";
 
 function QuickActions() {
   const { setActiveTab } = useTabs();
-  return <button onClick={() => setActiveTab('special')}>Go to Special Tab</button>;
+  return (
+    <button onClick={() => setActiveTab("special")}>Go to Special Tab</button>
+  );
 }
 
 <Tabs defaultValue="tab1">
@@ -137,13 +159,13 @@ function QuickActions() {
     </TabsList>
     <QuickActions />
   </div>
-  
+
   <TabsContentWrapper>
     <TabsContent value="tab1">Content 1</TabsContent>
     <TabsContent value="tab2">Content 2</TabsContent>
     <TabsContent value="special">Special Content</TabsContent>
   </TabsContentWrapper>
-</Tabs>
+</Tabs>;
 ```
 
 **When to use:** Native triggers for main tabs, custom triggers for auxiliary actions.
@@ -153,9 +175,11 @@ function QuickActions() {
 ## API Reference
 
 ### `<Tabs>`
+
 Container component that provides tab context.
 
 **Props:**
+
 - `defaultValue: string` - Initial active tab (required)
 - `value?: string` - Controlled value (optional)
 - `onValueChange?: (value: string) => void` - Controlled change handler (optional)
@@ -165,9 +189,11 @@ Container component that provides tab context.
 ---
 
 ### `useTabs()` Hook
+
 Access tab state from any child component.
 
 **Returns:**
+
 ```tsx
 {
   activeTab: string;      // Current active tab value
@@ -180,13 +206,16 @@ Access tab state from any child component.
 ---
 
 ### `<TabsContentWrapper>`
+
 Manages rendering and animation of tab content.
 
 **Props:**
+
 - `children: ReactNode` - TabsContent components
 - `className?: string` - Additional CSS classes
 
 **Features:**
+
 - Smooth opacity transitions
 - Slide animations based on tab direction
 - Automatic pointer-events management
@@ -194,31 +223,38 @@ Manages rendering and animation of tab content.
 ---
 
 ### `<TabsContent>`
+
 Individual tab content panel.
 
 **Props:**
+
 - `value: string` - Unique identifier matching trigger value
 - `children: ReactNode` - Content to display
 
 ---
 
 ### `<TabsList>` (Optional)
+
 Container for native tab triggers.
 
 **Props:**
+
 - `children: ReactNode` - TabsTrigger components
 - `className?: string` - Additional CSS classes
 
 ---
 
 ### `<TabsTrigger>` (Optional)
+
 Native tab trigger button.
 
 **Props:**
+
 - `value: string` - Unique identifier matching content value
 - `children: ReactNode` - Trigger label/content
 
 **Features:**
+
 - Animated indicator background
 - Automatic active state styling
 - Accessible button element
@@ -232,19 +268,19 @@ Native tab trigger button.
 ```tsx
 function Sidebar() {
   const { activeTab, setActiveTab } = useTabs();
-  
+
   const items = [
-    { id: 'home', label: 'Home', icon: '🏠' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' },
+    { id: "home", label: "Home", icon: "🏠" },
+    { id: "settings", label: "Settings", icon: "⚙️" },
   ];
-  
+
   return (
     <nav>
-      {items.map(item => (
+      {items.map((item) => (
         <button
           key={item.id}
           onClick={() => setActiveTab(item.id)}
-          className={activeTab === item.id ? 'active' : ''}
+          className={activeTab === item.id ? "active" : ""}
         >
           {item.icon} {item.label}
         </button>
@@ -259,13 +295,13 @@ function Sidebar() {
 ```tsx
 function CardTriggers() {
   const { activeTab, setActiveTab } = useTabs();
-  
+
   return (
     <div className="grid grid-cols-3 gap-4">
-      <div 
-        onClick={() => setActiveTab('basic')}
+      <div
+        onClick={() => setActiveTab("basic")}
         className={`cursor-pointer p-6 border rounded-lg ${
-          activeTab === 'basic' ? 'border-blue-500 bg-blue-50' : ''
+          activeTab === "basic" ? "border-blue-500 bg-blue-50" : ""
         }`}
       >
         <h3>Basic Plan</h3>
@@ -282,11 +318,11 @@ function CardTriggers() {
 ```tsx
 function UrlTabs() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get('tab') || 'overview';
-  
+  const tab = searchParams.get("tab") || "overview";
+
   return (
-    <Tabs 
-      value={tab} 
+    <Tabs
+      value={tab}
       onValueChange={(value) => setSearchParams({ tab: value })}
       defaultValue="overview"
     >
@@ -301,18 +337,18 @@ function UrlTabs() {
 ```tsx
 function KeyboardTabs() {
   const { activeTab, setActiveTab } = useTabs();
-  
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === '1') setActiveTab('tab1');
-      if (e.key === '2') setActiveTab('tab2');
-      if (e.key === '3') setActiveTab('tab3');
+      if (e.key === "1") setActiveTab("tab1");
+      if (e.key === "2") setActiveTab("tab2");
+      if (e.key === "3") setActiveTab("tab3");
     };
-    
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, [setActiveTab]);
-  
+
   return <div>Press 1, 2, or 3 to switch tabs</div>;
 }
 ```
@@ -356,16 +392,20 @@ The component uses Framer Motion for smooth transitions:
 ## Troubleshooting
 
 **Error: "useTabs must be used within a Tabs component"**
+
 - Make sure your component using `useTabs()` is inside a `<Tabs>` wrapper
 
 **Tabs not switching:**
+
 - Verify that trigger values match content values exactly
 - Check that `setActiveTab` is being called correctly
 
 **Content not animating:**
+
 - Ensure you're using `<TabsContentWrapper>` and `<TabsContent>` components
 - Don't conditionally render TabsContent components
 
 **State not updating in controlled mode:**
+
 - Make sure you're passing both `value` and `onValueChange` props
 - Verify your state setter is working correctly

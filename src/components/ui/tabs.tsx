@@ -56,13 +56,13 @@ function useTabsContext() {
 /**
  * Hook to access tab state from within a Tabs component.
  * Use this to create custom tab triggers.
- * 
+ *
  * @example
  * ```tsx
  * function CustomTabTrigger({ value, children }) {
  *   const { activeTab, setActiveTab } = useTabs();
  *   return (
- *     <button 
+ *     <button
  *       onClick={() => setActiveTab(value)}
  *       className={activeTab === value ? 'active' : ''}
  *     >
@@ -77,7 +77,7 @@ export const useTabs = useTabsContext;
 /**
  * Tabs component - provides context for tab state management.
  * Supports both uncontrolled (defaultValue) and controlled (value + onValueChange) modes.
- * 
+ *
  * @example Uncontrolled with native triggers
  * ```tsx
  * <Tabs defaultValue="tab1">
@@ -91,7 +91,7 @@ export const useTabs = useTabsContext;
  *   </TabsContentWrapper>
  * </Tabs>
  * ```
- * 
+ *
  * @example Uncontrolled with custom triggers
  * ```tsx
  * <Tabs defaultValue="tab1">
@@ -101,7 +101,7 @@ export const useTabs = useTabsContext;
  *     <TabsContent value="tab2">Content 2</TabsContent>
  *   </TabsContentWrapper>
  * </Tabs>
- * 
+ *
  * function CustomTriggers() {
  *   const { activeTab, setActiveTab } = useTabs();
  *   return (
@@ -112,7 +112,7 @@ export const useTabs = useTabsContext;
  *   );
  * }
  * ```
- * 
+ *
  * @example Controlled mode
  * ```tsx
  * const [tab, setTab] = useState("tab1");
@@ -125,21 +125,30 @@ export const useTabs = useTabsContext;
  * </Tabs>
  * ```
  */
-export function Tabs({ defaultValue, children, className, value: controlledValue, onValueChange }: TabsProps) {
+export function Tabs({
+  defaultValue,
+  children,
+  className,
+  value: controlledValue,
+  onValueChange,
+}: TabsProps) {
   const [internalActiveTab, setInternalActiveTab] = useState(defaultValue);
-  
+
   // Use controlled value if provided, otherwise use internal state
   const activeTab = controlledValue ?? internalActiveTab;
 
-  const setActiveTab = useCallback((value: string) => {
-    if (onValueChange) {
-      // Controlled mode
-      onValueChange(value);
-    } else {
-      // Uncontrolled mode
-      setInternalActiveTab((prev) => (prev === value ? prev : value));
-    }
-  }, [onValueChange]);
+  const setActiveTab = useCallback(
+    (value: string) => {
+      if (onValueChange) {
+        // Controlled mode
+        onValueChange(value);
+      } else {
+        // Uncontrolled mode
+        setInternalActiveTab((prev) => (prev === value ? prev : value));
+      }
+    },
+    [onValueChange],
+  );
 
   const orderedTabValues: string[] = [];
   if (Array.isArray(children)) {
@@ -189,7 +198,7 @@ export function Tabs({ defaultValue, children, className, value: controlledValue
                         props: { ...child.props, activeTab },
                       }
                     : child
-                : child
+                : child,
             )
           : children}
       </div>
@@ -220,7 +229,7 @@ export function TabsList({
                     onChange: resolvedOnChange,
                   },
                 }
-              : child
+              : child,
           )
         : children}
     </div>

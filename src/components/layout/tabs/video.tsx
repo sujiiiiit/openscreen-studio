@@ -1,15 +1,25 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { useBackground, VIDEO_BORDER_RADIUS_VALUE, VIDEO_SHADOW_VALUE } from "@/context/background-context";
+import {
+  useBackground,
+  VIDEO_BORDER_RADIUS_VALUE,
+  VIDEO_SHADOW_VALUE,
+} from "@/context/background-context";
 
 export function VideoTabContent() {
-  const { videoBorderRadius, setVideoBorderRadius, videoShadow, setVideoShadow } = useBackground();
+  const {
+    videoBorderRadius,
+    setVideoBorderRadius,
+    videoShadow,
+    setVideoShadow,
+  } = useBackground();
 
   return (
     <section className="space-y-2">
       <h3 className="text-sm font-semibold">Video Settings</h3>
       <p className="text-xs text-muted-foreground">
-        Configure video appearance including border radius, shadow, and other visual properties.
+        Configure video appearance including border radius, shadow, and other
+        visual properties.
       </p>
       <div className="space-y-7 pt-4">
         <div className="w-full">

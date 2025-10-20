@@ -1,9 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 interface BackgroundState {
   enabled: boolean;
@@ -12,6 +7,8 @@ interface BackgroundState {
   padding: number;
   videoBorderRadius: number;
   videoShadow: number;
+  backgroundColor: string;
+  backgroundMode: "wallpaper" | "color" | "gradient" | "image";
 }
 
 interface BackgroundContextValue extends BackgroundState {
@@ -21,6 +18,10 @@ interface BackgroundContextValue extends BackgroundState {
   setPadding: (padding: number) => void;
   setVideoBorderRadius: (radius: number) => void;
   setVideoShadow: (shadow: number) => void;
+  setBackgroundColor: (color: string) => void;
+  setBackgroundMode: (
+    mode: "wallpaper" | "color" | "gradient" | "image",
+  ) => void;
 }
 export const BACKGROUND_BLUR_VALUE = 0;
 export const BACKGROUND_PADDING_VALUE = 8;
@@ -39,9 +40,17 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
   // Padding: 5-30% range, default 8% (balanced spacing)
   const [padding, setPadding] = useState(BACKGROUND_PADDING_VALUE);
   // Border radius: 0-100 range, default 0 (no rounding)
-  const [videoBorderRadius, setVideoBorderRadius] = useState(VIDEO_BORDER_RADIUS_VALUE);
+  const [videoBorderRadius, setVideoBorderRadius] = useState(
+    VIDEO_BORDER_RADIUS_VALUE,
+  );
   // Shadow: 0-100 range, default 30 (Mac-style shadow)
   const [videoShadow, setVideoShadow] = useState(VIDEO_SHADOW_VALUE);
+  // Background color for solid color mode
+  const [backgroundColor, setBackgroundColor] = useState("#1a1a1a");
+  // Background mode: wallpaper, color, gradient, or image
+  const [backgroundMode, setBackgroundMode] = useState<
+    "wallpaper" | "color" | "gradient" | "image"
+  >("wallpaper");
 
   const value: BackgroundContextValue = {
     enabled,
@@ -50,12 +59,16 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
     padding,
     videoBorderRadius,
     videoShadow,
+    backgroundColor,
+    backgroundMode,
     setEnabled,
     setWallpaperUrl,
     setBlurStrength,
     setPadding,
     setVideoBorderRadius,
     setVideoShadow,
+    setBackgroundColor,
+    setBackgroundMode,
   };
 
   return (
@@ -72,5 +85,3 @@ export function useBackground() {
   }
   return context;
 }
-
-

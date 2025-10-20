@@ -1,11 +1,18 @@
 /**
  * MIGRATION GUIDE: From Native to Custom Triggers
- * 
+ *
  * This file shows the exact transformation from using native
  * TabsList/TabsTrigger to custom triggers.
  */
 
-import { Tabs, TabsList, TabsTrigger, TabsContentWrapper, TabsContent, useTabs } from "../../src/components/ui/tabs";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContentWrapper,
+  TabsContent,
+  useTabs,
+} from "../../src/components/ui/tabs";
 
 // ============================================================================
 // BEFORE: Using Native Triggers
@@ -42,15 +49,15 @@ export function BeforeExample() {
 // ============================================================================
 
 // Step 1: Create your custom trigger component
-function SettingsTrigger({ 
-  value, 
-  icon, 
-  label, 
-  description 
-}: { 
-  value: string; 
-  icon: string; 
-  label: string; 
+function SettingsTrigger({
+  value,
+  icon,
+  label,
+  description,
+}: {
+  value: string;
+  icon: string;
+  label: string;
   description: string;
 }) {
   const { activeTab, setActiveTab } = useTabs();
@@ -60,14 +67,16 @@ function SettingsTrigger({
     <button
       onClick={() => setActiveTab(value)}
       className={`flex items-start gap-3 p-4 rounded-lg border-2 transition-all ${
-        isActive 
-          ? "border-blue-500 bg-blue-50 shadow-md" 
+        isActive
+          ? "border-blue-500 bg-blue-50 shadow-md"
           : "border-gray-200 hover:border-gray-300"
       }`}
     >
       <span className="text-2xl">{icon}</span>
       <div className="text-left">
-        <div className={`font-semibold ${isActive ? "text-blue-700" : "text-gray-900"}`}>
+        <div
+          className={`font-semibold ${isActive ? "text-blue-700" : "text-gray-900"}`}
+        >
           {label}
         </div>
         <div className="text-sm text-gray-500">{description}</div>
@@ -82,22 +91,22 @@ export function AfterExample() {
     <Tabs defaultValue="general">
       {/* Custom triggers - much more powerful! */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <SettingsTrigger 
-          value="general" 
+        <SettingsTrigger
+          value="general"
           icon="⚙️"
-          label="General" 
+          label="General"
           description="Basic app settings"
         />
-        <SettingsTrigger 
-          value="privacy" 
+        <SettingsTrigger
+          value="privacy"
           icon="🔒"
-          label="Privacy" 
+          label="Privacy"
           description="Security & privacy"
         />
-        <SettingsTrigger 
-          value="notifications" 
+        <SettingsTrigger
+          value="notifications"
           icon="🔔"
-          label="Notifications" 
+          label="Notifications"
           description="Alert preferences"
         />
       </div>
@@ -133,7 +142,7 @@ export function MinimalCustom() {
     <Tabs defaultValue="tab1">
       <SimpleTrigger value="tab1" label="Tab 1" />
       <SimpleTrigger value="tab2" label="Tab 2" />
-      
+
       <TabsContentWrapper>
         <TabsContent value="tab1">Content 1</TabsContent>
         <TabsContent value="tab2">Content 2</TabsContent>
@@ -147,9 +156,9 @@ export function StyledCustom() {
   function StyledTrigger({ value, label }: { value: string; label: string }) {
     const { activeTab, setActiveTab } = useTabs();
     const isActive = activeTab === value;
-    
+
     return (
-      <button 
+      <button
         onClick={() => setActiveTab(value)}
         className={isActive ? "active-tab" : "inactive-tab"}
       >
@@ -162,7 +171,7 @@ export function StyledCustom() {
     <Tabs defaultValue="tab1">
       <StyledTrigger value="tab1" label="Tab 1" />
       <StyledTrigger value="tab2" label="Tab 2" />
-      
+
       <TabsContentWrapper>
         <TabsContent value="tab1">Content 1</TabsContent>
         <TabsContent value="tab2">Content 2</TabsContent>
@@ -173,22 +182,22 @@ export function StyledCustom() {
 
 // Level 3: Add icons and descriptions
 export function EnhancedCustom() {
-  function EnhancedTrigger({ 
-    value, 
-    icon, 
-    label, 
-    description 
-  }: { 
-    value: string; 
-    icon: string; 
-    label: string; 
+  function EnhancedTrigger({
+    value,
+    icon,
+    label,
+    description,
+  }: {
+    value: string;
+    icon: string;
+    label: string;
     description: string;
   }) {
     const { activeTab, setActiveTab } = useTabs();
     const isActive = activeTab === value;
-    
+
     return (
-      <button 
+      <button
         onClick={() => setActiveTab(value)}
         className={`trigger-card ${isActive ? "active" : ""}`}
       >
@@ -201,19 +210,19 @@ export function EnhancedCustom() {
 
   return (
     <Tabs defaultValue="tab1">
-      <EnhancedTrigger 
-        value="tab1" 
-        icon="📊" 
-        label="Analytics" 
+      <EnhancedTrigger
+        value="tab1"
+        icon="📊"
+        label="Analytics"
         description="View your stats"
       />
-      <EnhancedTrigger 
-        value="tab2" 
-        icon="🎨" 
-        label="Design" 
+      <EnhancedTrigger
+        value="tab2"
+        icon="🎨"
+        label="Design"
         description="Customize appearance"
       />
-      
+
       <TabsContentWrapper>
         <TabsContent value="tab1">Content 1</TabsContent>
         <TabsContent value="tab2">Content 2</TabsContent>
@@ -231,7 +240,7 @@ export function SidebarLayout() {
   function SidebarItem({ value, label }: { value: string; label: string }) {
     const { activeTab, setActiveTab } = useTabs();
     return (
-      <div 
+      <div
         onClick={() => setActiveTab(value)}
         className={`sidebar-item ${activeTab === value ? "active" : ""}`}
       >
@@ -248,7 +257,7 @@ export function SidebarLayout() {
           <SidebarItem value="profile" label="Profile" />
           <SidebarItem value="settings" label="Settings" />
         </aside>
-        
+
         <main className="flex-1">
           <TabsContentWrapper>
             <TabsContent value="home">Home Page</TabsContent>
@@ -265,10 +274,10 @@ export function SidebarLayout() {
 export function DropdownLayout() {
   function DropdownTrigger() {
     const { activeTab, setActiveTab } = useTabs();
-    
+
     return (
-      <select 
-        value={activeTab} 
+      <select
+        value={activeTab}
         onChange={(e) => setActiveTab(e.target.value)}
         className="form-select"
       >
@@ -285,7 +294,7 @@ export function DropdownLayout() {
         <label>Select View: </label>
         <DropdownTrigger />
       </div>
-      
+
       <TabsContentWrapper>
         <TabsContent value="overview">Overview Content</TabsContent>
         <TabsContent value="details">Details Content</TabsContent>
@@ -297,12 +306,20 @@ export function DropdownLayout() {
 
 // Icon-only mobile navigation
 export function MobileNavLayout() {
-  function NavIcon({ value, icon, label }: { value: string; icon: string; label: string }) {
+  function NavIcon({
+    value,
+    icon,
+    label,
+  }: {
+    value: string;
+    icon: string;
+    label: string;
+  }) {
     const { activeTab, setActiveTab } = useTabs();
     const isActive = activeTab === value;
-    
+
     return (
-      <button 
+      <button
         onClick={() => setActiveTab(value)}
         className={`nav-icon ${isActive ? "active" : ""}`}
       >

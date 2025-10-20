@@ -12,8 +12,14 @@ export default function WallpaperSprite({
 }: WallpaperSpriteProps) {
   const spriteRef = useRef(null);
   const [texture, setTexture] = useState(Texture.EMPTY);
-  const { wallpaperUrl, blurStrength, enabled } = useBackground();
-  
+  const {
+    wallpaperUrl,
+    blurStrength,
+    enabled,
+    backgroundColor,
+    backgroundMode,
+  } = useBackground();
+
   // Animated blur strength for smooth transitions
   const [animatedBlur, setAnimatedBlur] = useState(blurStrength);
   const targetBlurRef = useRef(blurStrength);
@@ -21,26 +27,26 @@ export default function WallpaperSprite({
   // Smooth blur animation using requestAnimationFrame
   useEffect(() => {
     targetBlurRef.current = blurStrength;
-    
+
     let animationFrame: number;
     const animate = () => {
       setAnimatedBlur((current) => {
         const target = targetBlurRef.current;
         const diff = target - current;
-        
+
         // Smooth interpolation (ease out)
         if (Math.abs(diff) < 0.1) {
           return target;
         }
-        
+
         return current + diff * 0.15; // 15% towards target each frame
       });
-      
+
       animationFrame = requestAnimationFrame(animate);
     };
-    
+
     animationFrame = requestAnimationFrame(animate);
-    
+
     return () => {
       if (animationFrame) {
         cancelAnimationFrame(animationFrame);
@@ -109,18 +115,18 @@ export default function WallpaperSprite({
   const blurFilter = useMemo(() => {
     const filter = new BlurFilter({
       strength: animatedBlur, // Use animated value
-      quality: 4,       // Balanced quality (default: 4)
-      kernelSize: 5,    // Standard kernel for uniform blur
+      quality: 4, // Balanced quality (default: 4)
+      kernelSize: 5, // Standard kernel for uniform blur
     });
-    
+
     // IMPORTANT: Don't use repeatEdgePixels - it causes bright edge halos
     // Instead, we extend the sprite size to cover the blur overflow
     filter.repeatEdgePixels = false;
-    
+
     // Set padding to account for blur spread
     // This tells PixiJS how much extra space the filter needs
     filter.padding = animatedBlur * 2;
-    
+
     return filter;
   }, [animatedBlur]);
 
@@ -188,9 +194,34 @@ export default function WallpaperSprite({
     return null;
   }
 
+  // If in color mode, render solid color instead of wallpaper
+  if (backgroundMode === "color" && backgroundColor) {
+    // Convert hex to RGB integer for PixiJS
+    const hexToRgb = (hex: string): number => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      if (!result) return 0x000000;
+      return (
+        parseInt(result[1], 16) * 65536 +
+        parseInt(result[2], 16) * 256 +
+        parseInt(result[3], 16)
+      );
+    };
+
+    return (
+      <pixiGraphics
+        draw={(g) => {
+          g.clear();
+          g.beginFill(hexToRgb(backgroundColor));
+          g.drawRect(0, 0, viewportSize.width, viewportSize.height);
+          g.endFill();
+        }}
+      />
+    );
+  }
+
   // Debug: Log layout to verify coverage
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Wallpaper layout:', {
+  if (process.env.NODE_ENV === "development") {
+    console.log("Wallpaper layout:", {
       viewport: viewportSize,
       rendered: { width: layout.width, height: layout.height },
       position: { x: layout.x, y: layout.y },

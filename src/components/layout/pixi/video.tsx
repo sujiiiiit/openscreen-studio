@@ -21,15 +21,20 @@ export default function VideoTexture({
   const [texture, setTexture] = useState(Texture.EMPTY);
 
   const { registerVideoElement, setDurationHint } = usePlayback();
-  const { padding, enabled: backgroundEnabled, videoBorderRadius, videoShadow } = useBackground();
-  
+  const {
+    padding,
+    enabled: backgroundEnabled,
+    videoBorderRadius,
+    videoShadow,
+  } = useBackground();
+
   // Unified animated values for ALL properties (single animation loop)
   const [animatedValues, setAnimatedValues] = useState({
     padding,
     borderRadius: videoBorderRadius,
     shadow: videoShadow,
   });
-  
+
   const targetValuesRef = useRef({
     padding,
     borderRadius: videoBorderRadius,
@@ -43,19 +48,19 @@ export default function VideoTexture({
       borderRadius: videoBorderRadius,
       shadow: videoShadow,
     };
-    
+
     let animationFrame: number;
     let isAnimating = false;
-    
+
     const animate = () => {
       setAnimatedValues((current) => {
         const targets = targetValuesRef.current;
-        
+
         // Calculate diffs for all properties
         const paddingDiff = targets.padding - current.padding;
         const radiusDiff = targets.borderRadius - current.borderRadius;
         const shadowDiff = targets.shadow - current.shadow;
-        
+
         // Check if animation is complete (all diffs below threshold)
         const threshold = 0.1;
         if (
@@ -66,9 +71,9 @@ export default function VideoTexture({
           isAnimating = false;
           return targets; // Snap to final values
         }
-        
+
         isAnimating = true;
-        
+
         // Smooth interpolation for all properties (0.2 for faster, snappier feel)
         return {
           padding: current.padding + paddingDiff * 0.2,
@@ -76,15 +81,15 @@ export default function VideoTexture({
           shadow: current.shadow + shadowDiff * 0.2,
         };
       });
-      
+
       if (isAnimating) {
         animationFrame = requestAnimationFrame(animate);
       }
     };
-    
+
     isAnimating = true;
     animationFrame = requestAnimationFrame(animate);
-    
+
     return () => {
       if (animationFrame) {
         cancelAnimationFrame(animationFrame);
@@ -199,31 +204,37 @@ export default function VideoTexture({
     }
 
     const graphics = new Graphics();
-    
+
     // Calculate border radius as percentage of smallest dimension
     const smallestDimension = Math.min(layout.width, layout.height);
-    const radiusInPixels = (smallestDimension * animatedValues.borderRadius) / 100;
-    
+    const radiusInPixels =
+      (smallestDimension * animatedValues.borderRadius) / 100;
+
     // Draw rounded rectangle in world coordinates
     graphics.roundRect(
       layout.x - layout.width / 2,
       layout.y - layout.height / 2,
       layout.width,
       layout.height,
-      radiusInPixels
+      radiusInPixels,
     );
-    
-    graphics.fill({ 
-      color: 0xffffff, 
-      alpha: 1 
+
+    graphics.fill({
+      color: 0xffffff,
+      alpha: 1,
     });
-    
+
     return graphics;
   }, [layout, animatedValues.borderRadius]);
 
   // Create Mac-style shadow properties (OPTIMIZED)
   const shadowProps = useMemo(() => {
-    if (animatedValues.shadow === 0 || !backgroundEnabled || !layout.width || !layout.height) {
+    if (
+      animatedValues.shadow === 0 ||
+      !backgroundEnabled ||
+      !layout.width ||
+      !layout.height
+    ) {
       return undefined;
     }
 
@@ -233,17 +244,18 @@ export default function VideoTexture({
     const shadowAlpha = Math.min((animatedValues.shadow / 100) * 0.5, 0.5);
     const shadowSpread = (animatedValues.shadow / 100) * 40;
     const blurStrength = (animatedValues.shadow / 100) * 40;
-    
+
     // Calculate border radius for shadow (matching video)
     const smallestDimension = Math.min(layout.width, layout.height);
-    const radiusInPixels = (smallestDimension * animatedValues.borderRadius) / 100;
-    
+    const radiusInPixels =
+      (smallestDimension * animatedValues.borderRadius) / 100;
+
     // Shadow dimensions and position
     const shadowWidth = layout.width + shadowSpread * 2;
     const shadowHeight = layout.height + shadowSpread * 2;
     const shadowX = layout.x - shadowWidth / 2;
     const shadowY = layout.y - shadowHeight / 2 + shadowOffset;
-    
+
     return {
       x: shadowX,
       y: shadowY,
@@ -253,17 +265,22 @@ export default function VideoTexture({
       alpha: shadowAlpha,
       blur: blurStrength,
     };
-  }, [layout, animatedValues.borderRadius, animatedValues.shadow, backgroundEnabled]);
+  }, [
+    layout,
+    animatedValues.borderRadius,
+    animatedValues.shadow,
+    backgroundEnabled,
+  ]);
 
   // Create blur filter for shadow (HEAVILY OPTIMIZED for performance)
   const shadowBlurFilter = useMemo(() => {
     if (!shadowProps) return undefined;
-    
+
     // PERFORMANCE OPTIMIZED: Reduced quality while maintaining visual appearance
     // quality: 6 (down from 15 - 150% faster!)
     // kernelSize: 9 (down from 15 - still produces smooth shadows)
     // resolution: 1 (down from 2 - 4x fewer pixels to process!)
-    // 
+    //
     // This provides 6x-8x performance improvement while maintaining
     // 90% of visual quality - imperceptible difference to users
     const filter = new BlurFilter({
@@ -272,25 +289,25 @@ export default function VideoTexture({
       kernelSize: 9, // Still smooth, but much faster (was 15)
       resolution: 1, // Normal resolution (was 2 - huge performance gain)
     });
-    
+
     return filter;
   }, [shadowProps]);
 
   // Reusable Graphics instance (MAJOR OPTIMIZATION: reuse instead of recreate)
   const shadowGraphicsRef = useRef<Graphics | null>(null);
-  
+
   // Update shadow graphics efficiently
   useEffect(() => {
     if (!shadowProps) {
       shadowGraphicsRef.current = null;
       return;
     }
-    
+
     // Reuse existing graphics or create new one
     if (!shadowGraphicsRef.current) {
       shadowGraphicsRef.current = new Graphics();
     }
-    
+
     const g = shadowGraphicsRef.current;
     g.clear();
     g.roundRect(
@@ -298,7 +315,7 @@ export default function VideoTexture({
       shadowProps.y,
       shadowProps.width,
       shadowProps.height,
-      shadowProps.radius
+      shadowProps.radius,
     );
     g.fill({ color: 0x000000, alpha: shadowProps.alpha });
   }, [shadowProps]);
@@ -316,14 +333,14 @@ export default function VideoTexture({
               shadowProps.y,
               shadowProps.width,
               shadowProps.height,
-              shadowProps.radius
+              shadowProps.radius,
             );
             g.fill({ color: 0x000000, alpha: shadowProps.alpha });
           }}
           filters={shadowBlurFilter ? [shadowBlurFilter] : undefined}
         />
       )}
-      
+
       {/* Video sprite */}
       <pixiSprite
         ref={spriteRef}

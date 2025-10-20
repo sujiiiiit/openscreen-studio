@@ -44,7 +44,15 @@ export function StandardTabsExample() {
 // ============================================================================
 
 // Custom trigger component using the useTabs hook
-function CustomTabButton({ value, children, icon }: { value: string; children: React.ReactNode; icon?: React.ReactNode }) {
+function CustomTabButton({
+  value,
+  children,
+  icon,
+}: {
+  value: string;
+  children: React.ReactNode;
+  icon?: React.ReactNode;
+}) {
   const { activeTab, setActiveTab } = useTabs();
   const isActive = activeTab === value;
 
@@ -52,8 +60,8 @@ function CustomTabButton({ value, children, icon }: { value: string; children: R
     <button
       onClick={() => setActiveTab(value)}
       className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all ${
-        isActive 
-          ? "bg-blue-500 text-white shadow-lg scale-105" 
+        isActive
+          ? "bg-blue-500 text-white shadow-lg scale-105"
           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
       }`}
     >

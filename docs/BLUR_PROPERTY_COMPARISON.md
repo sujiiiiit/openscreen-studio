@@ -17,8 +17,8 @@ app.ticker.add(() => {
   count += 0.005;
   const blurAmount = Math.cos(count);
   const blurAmount2 = Math.sin(count);
-  
-  blurFilter1.blur = 20 * blurAmount;  // ⚠️ Using deprecated property
+
+  blurFilter1.blur = 20 * blurAmount; // ⚠️ Using deprecated property
   blurFilter2.blur = 20 * blurAmount2;
 });
 ```
@@ -28,13 +28,13 @@ app.ticker.add(() => {
 ```typescript
 const blurFilter = useMemo(() => {
   const filter = new BlurFilter({
-    strength: blurStrength,  // ✅ Modern, non-deprecated
+    strength: blurStrength, // ✅ Modern, non-deprecated
     quality: 4,
     kernelSize: 5,
   });
-  
-  filter.repeatEdgePixels = true;  // ✅ Prevents dark edges
-  
+
+  filter.repeatEdgePixels = true; // ✅ Prevents dark edges
+
   return filter;
 }, [blurStrength]);
 ```
@@ -53,14 +53,16 @@ filter.blur = 20;
 ```
 
 **Documentation:**
+
 ```
 @deprecated since 8.3.0
 @see BlurFilter.strength
 ```
 
 **Equivalent to:**
+
 ```typescript
-filter.strength = 20;  // Same effect
+filter.strength = 20; // Same effect
 ```
 
 ### `strength` Property (Current) ✅
@@ -73,6 +75,7 @@ filter.strength = 20;
 ```
 
 **Documentation:**
+
 ```
 Sets the strength of both the blurX and blurY properties simultaneously.
 Controls the overall intensity of the Gaussian blur effect.
@@ -85,47 +88,55 @@ Controls the overall intensity of the Gaussian blur effect.
 
 ### 1. Property Name
 
-| Example | Our Implementation | Status |
-|---------|-------------------|--------|
-| `blur` | `strength` | ✅ We use modern API |
+| Example | Our Implementation | Status               |
+| ------- | ------------------ | -------------------- |
+| `blur`  | `strength`         | ✅ We use modern API |
 
 ### 2. Edge Handling
 
 **Example:**
+
 ```typescript
 const blurFilter = new BlurFilter();
 // No edge handling - will have dark corners on solid backgrounds
 ```
 
 **Our Implementation:**
+
 ```typescript
-const filter = new BlurFilter({ /* options */ });
-filter.repeatEdgePixels = true;  // ⭐ Critical for backdrop effect
+const filter = new BlurFilter({
+  /* options */
+});
+filter.repeatEdgePixels = true; // ⭐ Critical for backdrop effect
 ```
 
 ### 3. Quality Settings
 
 **Example:**
+
 ```typescript
-new BlurFilter();  // Uses defaults (quality: 4, kernelSize: 5)
+new BlurFilter(); // Uses defaults (quality: 4, kernelSize: 5)
 ```
 
 **Our Implementation:**
+
 ```typescript
 new BlurFilter({
-  quality: 4,       // Explicit (same as default)
-  kernelSize: 5,    // Explicit (same as default)
+  quality: 4, // Explicit (same as default)
+  kernelSize: 5, // Explicit (same as default)
 });
 ```
 
 ### 4. Use Case
 
 **Example:**
+
 - Blurring sprites with transparent backgrounds
 - Animated blur effects
 - Overlaying images with depth-of-field
 
 **Our Implementation:**
+
 - Wallpaper backdrop blur
 - Solid backgrounds (requires repeatEdgePixels)
 - Static or user-controlled blur strength
@@ -171,7 +182,7 @@ filter.strength = 20;
 ```typescript
 // Option 1: Deprecated but still works
 const filter = new BlurFilter();
-filter.blur = 20;  // Works, but deprecated
+filter.blur = 20; // Works, but deprecated
 
 // Option 2: Modern (our approach) ✅
 const filter = new BlurFilter({ strength: 20 });
@@ -194,6 +205,7 @@ const filter = new BlurFilter({ strength: 20 });
 ### No Changes Needed
 
 The example provided is:
+
 - Using **older deprecated API** (`blur` property)
 - Missing **edge handling** (no `repeatEdgePixels`)
 - For **different use case** (transparent sprites, not backdrop)
@@ -204,14 +216,14 @@ The example provided is:
 
 ## Reference Comparison Table
 
-| Feature | PixiJS Example | Our Implementation | Winner |
-|---------|---------------|-------------------|--------|
-| **API Version** | Deprecated (`blur`) | Modern (`strength`) | ✅ Us |
-| **Edge Handling** | None | `repeatEdgePixels` | ✅ Us |
-| **Configuration** | Defaults | Explicit settings | ✅ Us |
-| **Padding** | None | Dynamic padding | ✅ Us |
-| **Use Case** | Sprite effects | Backdrop filter | ✅ Us |
-| **React Integration** | N/A | Optimized (useMemo) | ✅ Us |
+| Feature               | PixiJS Example      | Our Implementation  | Winner |
+| --------------------- | ------------------- | ------------------- | ------ |
+| **API Version**       | Deprecated (`blur`) | Modern (`strength`) | ✅ Us  |
+| **Edge Handling**     | None                | `repeatEdgePixels`  | ✅ Us  |
+| **Configuration**     | Defaults            | Explicit settings   | ✅ Us  |
+| **Padding**           | None                | Dynamic padding     | ✅ Us  |
+| **Use Case**          | Sprite effects      | Backdrop filter     | ✅ Us  |
+| **React Integration** | N/A                 | Optimized (useMemo) | ✅ Us  |
 
 ---
 
@@ -223,14 +235,14 @@ The example provided is:
 // ❌ Using deprecated API like example
 const blurFilter = useMemo(() => {
   const filter = new BlurFilter();
-  filter.blur = blurStrength;  // ⚠️ Deprecated
+  filter.blur = blurStrength; // ⚠️ Deprecated
   return filter;
 }, [blurStrength]);
 
 // ✅ Our current approach is better:
 const blurFilter = useMemo(() => {
   const filter = new BlurFilter({
-    strength: blurStrength,  // Modern
+    strength: blurStrength, // Modern
     quality: 4,
     kernelSize: 5,
   });
@@ -255,6 +267,7 @@ const blurFilter = useMemo(() => {
 ### Documentation Reference
 
 **PixiJS v8.3.0+ Deprecation Notice:**
+
 ```typescript
 /**
  * @deprecated since 8.3.0
@@ -265,6 +278,7 @@ set blur(value: number);
 ```
 
 **Modern API (what we use):**
+
 ```typescript
 /**
  * Sets the strength of both the blurX and blurY properties simultaneously.

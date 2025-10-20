@@ -75,7 +75,7 @@ const TAB_ITEMS: TabItem[] = [
 export default function Sidebar() {
   const tabs = useMemo(() => TAB_ITEMS, []);
   const { activeTab, selectTab, toggle, isOpen } = useSidebarTabs<TabId>(
-    tabs[0].id
+    tabs[0].id,
   );
   const activeIndex = tabs.findIndex((item) => item.id === activeTab);
   const safeActiveIndex = activeIndex === -1 ? 0 : activeIndex;
@@ -112,7 +112,7 @@ export default function Sidebar() {
                       className={cn(
                         "group relative text-foreground transition",
                         "bg-transparent hover:bg-transparent",
-                        isActive ? "z-[2]" : ""
+                        isActive ? "z-[2]" : "",
                       )}
                     >
                       <span

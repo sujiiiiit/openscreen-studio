@@ -26,10 +26,13 @@ interface BackgroundContextValue extends BackgroundState {
 export const VIDEO_BORDER_RADIUS_VALUE = 0; // Default: no rounding
 
 // In BackgroundProvider:
-const [videoBorderRadius, setVideoBorderRadius] = useState(VIDEO_BORDER_RADIUS_VALUE);
+const [videoBorderRadius, setVideoBorderRadius] = useState(
+  VIDEO_BORDER_RADIUS_VALUE,
+);
 ```
 
 **Range:**
+
 - **Minimum:** 0 (sharp corners)
 - **Maximum:** 100 (very rounded)
 - **Default:** 0 (no rounding)
@@ -45,33 +48,34 @@ Added animated border radius with same pattern as blur/padding:
 
 ```typescript
 // Animated border radius for smooth transitions
-const [animatedBorderRadius, setAnimatedBorderRadius] = useState(videoBorderRadius);
+const [animatedBorderRadius, setAnimatedBorderRadius] =
+  useState(videoBorderRadius);
 const targetBorderRadiusRef = useRef(videoBorderRadius);
 
 // Smooth border radius animation
 useEffect(() => {
   targetBorderRadiusRef.current = videoBorderRadius;
-  
+
   let animationFrame: number;
   const animate = () => {
     setAnimatedBorderRadius((current) => {
       const target = targetBorderRadiusRef.current;
       const diff = target - current;
-      
+
       // Stop when close enough
       if (Math.abs(diff) < 0.1) {
         return target;
       }
-      
+
       // Ease out: 15% per frame
       return current + diff * 0.15;
     });
-    
+
     animationFrame = requestAnimationFrame(animate);
   };
-  
+
   animationFrame = requestAnimationFrame(animate);
-  
+
   return () => {
     if (animationFrame) {
       cancelAnimationFrame(animationFrame);
@@ -94,7 +98,7 @@ const mask = useMemo(() => {
   }
 
   const graphics = new Graphics();
-  
+
   // Draw rounded rectangle centered at (0, 0)
   graphics.roundRect(
     -layout.width / 2,   // x (centered)
@@ -104,10 +108,10 @@ const mask = useMemo(() => {
     animatedBorderRadius // corner radius
   );
   graphics.fill(0xffffff); // Fill with white (mask color doesn't matter)
-  
+
   // Position the mask at the sprite position
   graphics.position.set(layout.x, layout.y);
-  
+
   return graphics;
 }, [layout, animatedBorderRadius]);
 
@@ -177,17 +181,20 @@ export function VideoTabContent() {
 **Implementation Steps:**
 
 1. **Create Graphics Object**
+
    ```typescript
    const graphics = new Graphics();
    ```
 
 2. **Draw Rounded Rectangle**
+
    ```typescript
    graphics.roundRect(x, y, width, height, cornerRadius);
    graphics.fill(0xffffff);
    ```
 
 3. **Position Mask**
+
    ```typescript
    graphics.position.set(layout.x, layout.y);
    ```
@@ -200,10 +207,12 @@ export function VideoTabContent() {
 ### Coordinate System
 
 **Sprite Positioning:**
+
 - Sprite uses `anchor={0.5}` (centered)
 - Sprite positioned at `(layout.x, layout.y)`
 
 **Mask Positioning:**
+
 - Mask drawn from `(-width/2, -height/2)` (centered)
 - Mask positioned at `(layout.x, layout.y)` (same as sprite)
 - **Result:** Mask perfectly aligns with sprite
@@ -211,6 +220,7 @@ export function VideoTabContent() {
 ### Performance Optimization
 
 **Conditional Rendering:**
+
 ```typescript
 if (animatedBorderRadius === 0 || !layout.width || !layout.height) {
   return undefined; // Skip mask when not needed
@@ -218,11 +228,13 @@ if (animatedBorderRadius === 0 || !layout.width || !layout.height) {
 ```
 
 **Benefits:**
+
 - ✅ No performance cost when radius is 0
 - ✅ Mask only created when needed
 - ✅ Graphics object recreated only when layout/radius changes
 
 **useMemo Dependencies:**
+
 ```typescript
 useMemo(() => {
   // ... create mask
@@ -230,6 +242,7 @@ useMemo(() => {
 ```
 
 Only recreates mask when:
+
 - Video size changes (`layout`)
 - Border radius changes (`animatedBorderRadius`)
 
@@ -240,12 +253,14 @@ Only recreates mask when:
 **Pattern:** Same as blur and padding animations
 
 **Timing:**
+
 - **Speed:** 15% per frame (0.15 factor)
 - **Duration:** ~500ms total
 - **Frame Rate:** 60 FPS
 - **Easing:** Ease-out (starts fast, slows down)
 
 **Example:**
+
 ```
 User moves slider: 0 → 50
 Animation: 0 → 7.5 → 14 → 20 → 25 → 30 → 35 → 40 → 44 → 47 → 49 → 50
@@ -261,6 +276,7 @@ if (Math.abs(diff) < 0.1) {
 ```
 
 **Why 0.1?**
+
 - Difference of 0.1px is imperceptible
 - Prevents infinite animation loop
 - Ensures animation completes exactly at target
@@ -270,6 +286,7 @@ if (Math.abs(diff) < 0.1) {
 ### Border Radius Values
 
 **0 (Default):**
+
 ```
 ┌──────────────┐
 │              │
@@ -280,6 +297,7 @@ Sharp corners
 ```
 
 **25:**
+
 ```
 ╭──────────────╮
 │              │
@@ -290,6 +308,7 @@ Slightly rounded
 ```
 
 **50:**
+
 ```
 ╭────────────╮
 │            │
@@ -300,6 +319,7 @@ Moderately rounded
 ```
 
 **100:**
+
 ```
 ╭──────────╮
 │          │
@@ -319,6 +339,7 @@ Heavily rounded
 4. **Click "Reset"** to return to default (0)
 
 **Tips:**
+
 - Start with small values (10-20) for subtle effect
 - Use 30-50 for modern, rounded look
 - Values above 60 create very rounded corners
@@ -327,21 +348,23 @@ Heavily rounded
 ### For Developers
 
 **Access border radius value:**
+
 ```typescript
 import { useBackground } from "@/context/background-context";
 
 function MyComponent() {
   const { videoBorderRadius, setVideoBorderRadius } = useBackground();
-  
+
   // Read current value
   console.log(videoBorderRadius);
-  
+
   // Update value
   setVideoBorderRadius(30);
 }
 ```
 
 **Check if border radius is active:**
+
 ```typescript
 const hasBorderRadius = videoBorderRadius > 0;
 ```
@@ -351,6 +374,7 @@ const hasBorderRadius = videoBorderRadius > 0;
 ### Graphics API
 
 **PixiJS Graphics.roundRect():**
+
 ```typescript
 graphics.roundRect(
   x: number,        // X coordinate (top-left)
@@ -362,6 +386,7 @@ graphics.roundRect(
 ```
 
 **Mask Requirements:**
+
 - Must be filled (using `.fill()`)
 - Must be positioned correctly
 - Must be added to same container or scene
@@ -369,17 +394,18 @@ graphics.roundRect(
 ### Memory Management
 
 **Mask Lifecycle:**
+
 ```typescript
 const mask = useMemo(() => {
   // Created when:
   // - Component mounts
   // - layout changes
   // - animatedBorderRadius changes
-  
+
   const graphics = new Graphics();
   // ... setup
   return graphics;
-  
+
   // Automatically cleaned up by PixiJS when:
   // - Component unmounts
   // - New mask created (replaces old one)
@@ -387,6 +413,7 @@ const mask = useMemo(() => {
 ```
 
 **Memory Usage:**
+
 - Graphics object: ~1-2KB per instance
 - Recreated only when dependencies change
 - Old instances garbage collected automatically
@@ -403,6 +430,7 @@ const mask = useMemo(() => {
 ```
 
 **Why it doesn't work:**
+
 - CSS affects DOM elements only
 - Video is rendered in WebGL context
 - WebGL is a separate rendering pipeline
@@ -418,6 +446,7 @@ sprite.mask = mask;
 ```
 
 **Why it works:**
+
 - Mask is part of WebGL scene
 - Processed by PixiJS renderer
 - Proper clipping in GPU
@@ -428,12 +457,14 @@ sprite.mask = mask;
 ### CPU Usage
 
 **Mask Creation:**
+
 - Graphics object creation: ~0.1ms
 - roundRect calculation: ~0.05ms
 - Fill operation: ~0.05ms
 - **Total:** ~0.2ms per update
 
 **Per Frame (with animation):**
+
 - Border radius interpolation: ~0.1ms
 - useMemo check: ~0.05ms
 - **Total:** ~0.15ms per frame
@@ -443,11 +474,13 @@ sprite.mask = mask;
 ### GPU Usage
 
 **Mask Rendering:**
+
 - Stencil buffer operations (hardware)
 - No additional texture memory
 - Very efficient clipping
 
 **Performance:**
+
 - **No FPS impact** in testing
 - GPU handles masking natively
 - Same cost as any other clipping operation
@@ -455,6 +488,7 @@ sprite.mask = mask;
 ### Memory Footprint
 
 **Additional Memory:**
+
 - Graphics object: ~1-2KB
 - Animation state: ~32 bytes
 - Refs: ~16 bytes
@@ -467,6 +501,7 @@ sprite.mask = mask;
 ### Supported
 
 ✅ **All modern browsers:**
+
 - Chrome/Edge 90+
 - Firefox 88+
 - Safari 14+
@@ -477,6 +512,7 @@ sprite.mask = mask;
 ### Fallback
 
 If WebGL unavailable (very rare):
+
 - PixiJS automatically falls back to Canvas2D
 - Mask still works (Canvas clipping)
 - Slightly slower but still smooth
@@ -499,12 +535,13 @@ videoBorderRadius: {
 ```
 
 **PixiJS Support:**
+
 ```typescript
 graphics.roundRect(x, y, width, height, {
   topLeft: 20,
   topRight: 20,
   bottomLeft: 10,
-  bottomRight: 10
+  bottomRight: 10,
 });
 ```
 
@@ -516,13 +553,18 @@ const BORDER_RADIUS_PRESETS = {
   subtle: 15,
   moderate: 30,
   heavy: 60,
-  pill: 100
+  pill: 100,
 };
 ```
 
 **UI:**
+
 ```tsx
-<Select onValueChange={(preset) => setVideoBorderRadius(BORDER_RADIUS_PRESETS[preset])}>
+<Select
+  onValueChange={(preset) =>
+    setVideoBorderRadius(BORDER_RADIUS_PRESETS[preset])
+  }
+>
   <SelectItem value="none">None</SelectItem>
   <SelectItem value="subtle">Subtle</SelectItem>
   <SelectItem value="moderate">Moderate</SelectItem>
@@ -619,6 +661,7 @@ return current + diff * easeOutBounce(0.15);
 ### Common Issues
 
 **Issue: Corners not rounding**
+
 ```typescript
 // Check: Is radius > 0?
 console.log(videoBorderRadius); // Should be > 0
@@ -631,26 +674,29 @@ console.log(mask?.position); // Should match sprite position
 ```
 
 **Issue: Mask not aligned with video**
+
 ```typescript
 // Ensure mask uses same center point:
 graphics.roundRect(
-  -layout.width / 2,  // ✅ Centered
+  -layout.width / 2, // ✅ Centered
   -layout.height / 2, // ✅ Centered
   layout.width,
   layout.height,
-  radius
+  radius,
 );
 
 // NOT:
 graphics.roundRect(
-  0, 0,  // ❌ Wrong origin
+  0,
+  0, // ❌ Wrong origin
   layout.width,
   layout.height,
-  radius
+  radius,
 );
 ```
 
 **Issue: Performance problems**
+
 ```typescript
 // Ensure mask is memoized:
 const mask = useMemo(() => {
@@ -665,10 +711,10 @@ const mask = new Graphics(); // ❌ Recreated every render
 
 ```typescript
 useEffect(() => {
-  console.log('Border Radius Animation:', {
+  console.log("Border Radius Animation:", {
     target: videoBorderRadius,
     current: animatedBorderRadius,
-    diff: Math.abs(videoBorderRadius - animatedBorderRadius)
+    diff: Math.abs(videoBorderRadius - animatedBorderRadius),
   });
 }, [videoBorderRadius, animatedBorderRadius]);
 ```
@@ -678,17 +724,20 @@ useEffect(() => {
 ### What Was Added
 
 ✅ **Context:**
+
 - `videoBorderRadius` state (0-100)
 - `setVideoBorderRadius` setter
 - `VIDEO_BORDER_RADIUS_VALUE` constant
 
 ✅ **Video Component:**
+
 - Smooth border radius animation
 - PixiJS Graphics mask
 - Rounded rectangle clipping
 - Performance optimizations
 
 ✅ **UI Controls:**
+
 - Slider in Video tab (0-100 range)
 - Reset button
 - Smooth visual feedback
@@ -696,17 +745,20 @@ useEffect(() => {
 ### Key Features
 
 🎨 **Visual:**
+
 - Smooth rounded corners
 - Customizable radius (0-100px)
 - Animated transitions (~500ms)
 
 ⚡ **Performance:**
+
 - GPU-accelerated masking
 - Optimized with useMemo
 - No FPS impact
 - Minimal memory usage
 
 🎯 **User Experience:**
+
 - Intuitive slider control
 - Live preview
 - Smooth animations

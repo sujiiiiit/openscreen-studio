@@ -3,14 +3,18 @@
 ## Issue Resolution
 
 ### Problem
+
 PixiJS Assets loader was being blocked by Content Security Policy when trying to use Web Workers for image loading:
+
 ```
-Refused to create a worker from 'blob:...' because it violates the following 
+Refused to create a worker from 'blob:...' because it violates the following
 Content Security Policy directive: "script-src 'self' 'unsafe-inline'".
 ```
 
 ### Root Cause
+
 PixiJS v8 uses Web Workers (via blob URLs) for efficient image loading and processing. The default CSP configuration was blocking:
+
 1. **Blob URLs** for worker scripts
 2. **Worker creation** from blob sources
 3. **Image loading** from blob URLs
@@ -18,6 +22,7 @@ PixiJS v8 uses Web Workers (via blob URLs) for efficient image loading and proce
 ## Solution Implemented
 
 ### 1. HTML Meta Tag CSP (index.html)
+
 Updated the Content Security Policy in `index.html` to allow:
 
 ```html
@@ -35,11 +40,13 @@ Updated the Content Security Policy in `index.html` to allow:
 ```
 
 **Key Changes:**
+
 - `script-src`: Added `blob:` to allow blob URL scripts
 - `worker-src`: Added directive with `'self' blob:` to allow workers
 - `img-src`: Added `blob:` for blob URL images
 
 ### 2. Electron CSP Headers (window-manager.ts)
+
 Added CSP headers via Electron's webRequest API:
 
 ```typescript
@@ -58,11 +65,13 @@ this.mainWindow.webContents.session.webRequest.onHeadersReceived(
 ```
 
 **Additional Electron Features:**
+
 - `file:` protocol support for local file access
 - Consistent with HTML CSP policy
 - Applied to all responses in the Electron window
 
 ### 3. Improved Error Handling (wallpaper.tsx)
+
 Enhanced the wallpaper component with better error handling:
 
 ```typescript
@@ -77,12 +86,13 @@ try {
   const loaded = await Assets.load<Texture>(wallpaperUrl);
   setTexture(loaded);
 } catch (error) {
-  console.error('Failed to load wallpaper', error);
+  console.error("Failed to load wallpaper", error);
   setTexture(Texture.EMPTY); // Graceful fallback
 }
 ```
 
 **Improvements:**
+
 - Texture caching to avoid reloading
 - Graceful fallback to empty texture on error
 - Better cleanup on unmount
@@ -91,30 +101,36 @@ try {
 ## CSP Directive Explanations
 
 ### `default-src 'self'`
+
 Base policy: Only allow resources from same origin
 
 ### `script-src 'self' 'unsafe-inline' blob:`
+
 - `'self'`: Scripts from same origin
 - `'unsafe-inline'`: Inline `<script>` tags (required for Vite HMR)
 - `blob:`: Blob URL scripts (required for Web Workers)
 
 ### `worker-src 'self' blob:`
+
 - `'self'`: Workers from same origin
 - `blob:`: Workers from blob URLs (PixiJS requirement)
 
 ### `img-src 'self' data: blob: file:`
+
 - `'self'`: Images from same origin
 - `data:`: Data URLs for images
 - `blob:`: Blob URL images (canvas exports, processed images)
 - `file:`: Local file system (Electron only)
 
 ### `media-src 'self' blob: data: file:`
+
 - `'self'`: Media from same origin
 - `blob:`: Blob URL media (video recordings)
 - `data:`: Data URL media
 - `file:`: Local media files (Electron only)
 
 ### `connect-src 'self' ws: wss: https://huggingface.co`
+
 - `'self'`: API calls to same origin
 - `ws:` / `wss:`: WebSocket connections (HMR, live reload)
 - `https://huggingface.co`: External API for transcription
@@ -148,6 +164,7 @@ Base policy: Only allow resources from same origin
 ## Testing CSP Configuration
 
 ### Verify Worker Support
+
 ```javascript
 // In browser console
 const blob = new Blob(['console.log("Worker works!")']);
@@ -157,10 +174,11 @@ const worker = new Worker(url);
 ```
 
 ### Verify PixiJS Loading
+
 ```javascript
 // Check if PixiJS can load textures
-import { Assets } from 'pixi.js';
-await Assets.load('/assets/background/test.jpg');
+import { Assets } from "pixi.js";
+await Assets.load("/assets/background/test.jpg");
 // Should load without CSP errors
 ```
 
@@ -174,18 +192,21 @@ await Assets.load('/assets/background/test.jpg');
 ## Troubleshooting
 
 ### If Workers Still Blocked
+
 1. Check browser console for specific CSP violation
 2. Verify `worker-src` directive is present
 3. Ensure `blob:` is in both `script-src` and `worker-src`
 4. Clear browser cache and reload
 
 ### If Images Not Loading
+
 1. Verify `blob:` in `img-src` directive
 2. Check image file exists in correct location
 3. Verify file permissions (Electron)
 4. Check network tab for 404 errors
 
 ### If Electron-Specific Issues
+
 1. Ensure CSP headers are set before loading content
 2. Check `webRequest.onHeadersReceived` is firing
 3. Verify file:// protocol support for local files
@@ -196,11 +217,12 @@ await Assets.load('/assets/background/test.jpg');
 ### Considerations for Production
 
 1. **Stricter CSP for production**:
+
    ```typescript
-   const isDev = process.env.NODE_ENV === 'development';
-   const csp = isDev 
-     ? devCSP  // With 'unsafe-inline'
-     : prodCSP // Stricter policy
+   const isDev = process.env.NODE_ENV === "development";
+   const csp = isDev
+     ? devCSP // With 'unsafe-inline'
+     : prodCSP; // Stricter policy
    ```
 
 2. **Nonce-based inline scripts**:
@@ -214,8 +236,7 @@ await Assets.load('/assets/background/test.jpg');
 
 4. **Report-only mode for testing**:
    ```html
-   <meta http-equiv="Content-Security-Policy-Report-Only" 
-         content="..." />
+   <meta http-equiv="Content-Security-Policy-Report-Only" content="..." />
    ```
 
 ## References

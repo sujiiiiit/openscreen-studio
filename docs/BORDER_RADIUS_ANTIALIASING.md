@@ -3,9 +3,11 @@
 ## Problem Identified
 
 ### Issue
+
 Border radius edges appeared **pixelated and blurry** instead of smooth.
 
 **Symptoms:**
+
 - Jagged, stair-stepped edges on rounded corners
 - Not smooth like CSS border-radius
 - Noticeable at all border radius values
@@ -30,6 +32,7 @@ Border radius edges appeared **pixelated and blurry** instead of smooth.
 ### Why Antialiasing Matters
 
 **Without antialiasing:**
+
 ```
 Zoomed view of rounded corner:
 ┌─────┐
@@ -41,6 +44,7 @@ Zoomed view of rounded corner:
 ```
 
 **With antialiasing:**
+
 ```
 Zoomed view of rounded corner:
 ┌─────╮
@@ -74,6 +78,7 @@ Zoomed view of rounded corner:
 ```
 
 **What this does:**
+
 - Enables MSAA (Multisample Anti-Aliasing) in WebGL
 - Smooths all rendered edges in the entire scene
 - Applies to sprites, graphics, masks, and all objects
@@ -84,13 +89,14 @@ Zoomed view of rounded corner:
 **File:** `src/components/layout/pixi/video.tsx`
 
 ```typescript
-graphics.fill({ 
-  color: 0xffffff, 
-  alpha: 1 
+graphics.fill({
+  color: 0xffffff,
+  alpha: 1,
 });
 ```
 
 **Why explicit fill options:**
+
 - Ensures solid, opaque fill for mask
 - Better compatibility with WebGL renderer
 - More predictable rendering behavior
@@ -100,12 +106,14 @@ graphics.fill({
 ### MSAA (Multisample Anti-Aliasing)
 
 **Concept:**
+
 1. Render scene at higher resolution internally
 2. Sample multiple points per pixel
 3. Average the samples to smooth edges
 4. Display at target resolution
 
 **Visual representation:**
+
 ```
 Without MSAA (1 sample per pixel):
 [■][□][□][□]  ← Hard edge, either inside or outside
@@ -121,16 +129,19 @@ With MSAA (4 samples per pixel):
 ### Performance Impact
 
 **GPU Cost:**
+
 - Antialiasing is hardware-accelerated
 - Modern GPUs handle this efficiently
 - Minimal performance impact (~1-2% GPU usage)
 
 **Memory Cost:**
+
 - Requires multisample buffer
 - Additional ~2-4MB for 1920x1080 display
 - Negligible on modern hardware
 
 **Frame Rate:**
+
 - No noticeable FPS impact
 - Still maintains 60 FPS
 - Benefits far outweigh costs
@@ -143,15 +154,16 @@ With MSAA (4 samples per pixel):
 
 ```javascript
 // PixiJS creates WebGL context with:
-const gl = canvas.getContext('webgl', {
-  antialias: true,  // Enable antialiasing
-  alpha: true,      // Supports transparency
+const gl = canvas.getContext("webgl", {
+  antialias: true, // Enable antialiasing
+  alpha: true, // Supports transparency
   premultipliedAlpha: true,
-  preserveDrawingBuffer: false
+  preserveDrawingBuffer: false,
 });
 ```
 
 **Effect on rendering:**
+
 - Smooths geometry edges
 - Smooths texture filtering
 - Improves visual quality across the board
@@ -161,6 +173,7 @@ const gl = canvas.getContext('webgl', {
 **Mask rendering with antialiasing:**
 
 1. **Graphics draws rounded rectangle:**
+
    ```typescript
    graphics.roundRect(x, y, width, height, radius);
    graphics.fill({ color: 0xffffff, alpha: 1 });
@@ -186,16 +199,19 @@ antialias={true}        // Edge smoothing
 ```
 
 **Resolution:**
+
 - Matches physical pixels on screen
 - `window.devicePixelRatio` (1 for 1080p, 2 for Retina)
 - Prevents blurry rendering on high-DPI displays
 
 **Antialiasing:**
+
 - Smooths edges within each pixel
 - Works at any resolution
 - Complements high resolution
 
 **Together:**
+
 - High resolution = sharp details
 - Antialiasing = smooth edges
 - Result: Crystal clear, smooth graphics ✅
@@ -241,6 +257,7 @@ Zoomed 4x:
 ### WebGL Antialiasing Support
 
 ✅ **All modern browsers:**
+
 - Chrome/Edge 90+ → Full support
 - Firefox 88+ → Full support
 - Safari 14+ → Full support
@@ -251,11 +268,13 @@ Zoomed 4x:
 ### Fallback Behavior
 
 **If WebGL unavailable (very rare):**
+
 - PixiJS falls back to Canvas2D
 - Canvas2D has built-in antialiasing
 - Quality still good, slightly slower
 
 **If antialiasing unsupported (extremely rare):**
+
 - WebGL renders without antialiasing
 - Edges appear pixelated
 - Functionality still works
@@ -265,6 +284,7 @@ Zoomed 4x:
 ### Frame Rate Test
 
 **Setup:**
+
 - 1920x1080 fullscreen
 - Border radius: 30%
 - Background blur: 20
@@ -272,11 +292,11 @@ Zoomed 4x:
 
 **Results:**
 
-| Antialiasing | FPS  | GPU Usage | Memory  |
-|--------------|------|-----------|---------|
-| Disabled     | 60   | 12%       | 45 MB   |
-| Enabled      | 60   | 13%       | 47 MB   |
-| **Impact**   | **0**| **+1%**   | **+2MB**|
+| Antialiasing | FPS   | GPU Usage | Memory   |
+| ------------ | ----- | --------- | -------- |
+| Disabled     | 60    | 12%       | 45 MB    |
+| Enabled      | 60    | 13%       | 47 MB    |
+| **Impact**   | **0** | **+1%**   | **+2MB** |
 
 **Conclusion:** Negligible performance cost ✅
 
@@ -285,7 +305,7 @@ Zoomed 4x:
 **Edge smoothness rating (1-10):**
 
 | Scenario          | No AA | With AA | Improvement |
-|-------------------|-------|---------|-------------|
+| ----------------- | ----- | ------- | ----------- |
 | Small radius (5%) | 3/10  | 9/10    | +200%       |
 | Medium (15%)      | 4/10  | 9/10    | +125%       |
 | Large (30%)       | 5/10  | 10/10   | +100%       |
@@ -297,6 +317,7 @@ Zoomed 4x:
 ### When to Use Antialiasing
 
 **Always use antialiasing for:**
+
 - ✅ Rounded corners (like our border radius)
 - ✅ Diagonal lines
 - ✅ Curves and circles
@@ -304,11 +325,13 @@ Zoomed 4x:
 - ✅ Any non-axis-aligned geometry
 
 **Antialiasing less critical for:**
+
 - Axis-aligned rectangles (vertical/horizontal edges)
 - Large, filled areas
 - Low-resolution pixel art
 
 **Our use case:**
+
 - Rounded corners = **Always needs antialiasing** ✅
 
 ### Quality Settings Summary
@@ -322,7 +345,7 @@ resolution={dpr}        // ✅ Match device pixels
 autoDensity={true}      // ✅ Automatic DPI handling
 
 // Graphics mask
-fill({ 
+fill({
   color: 0xffffff,      // ✅ Solid color
   alpha: 1              // ✅ Fully opaque
 })
@@ -335,26 +358,33 @@ fill({
 ### Issue: Still looks pixelated
 
 **Check:**
+
 1. Is `antialias={true}` set in Application? ✅
 2. Is resolution set correctly? (should be `window.devicePixelRatio`)
 3. Is browser using hardware acceleration?
 4. Try in different browser (rule out browser bug)
 
 **Debug:**
+
 ```typescript
-console.log('Antialiasing:', app.renderer.view.context.getContextAttributes().antialias);
-console.log('Resolution:', app.renderer.resolution);
+console.log(
+  "Antialiasing:",
+  app.renderer.view.context.getContextAttributes().antialias,
+);
+console.log("Resolution:", app.renderer.resolution);
 ```
 
 ### Issue: Performance drop
 
 **Unlikely, but if it happens:**
+
 1. Check GPU usage (should be <20%)
 2. Check other browser tabs (disable hardware acceleration hogs)
 3. Update graphics drivers
 4. Try lower resolution device (antialias less needed on low DPI)
 
 **Disable if needed:**
+
 ```typescript
 antialias={false}  // Fallback if performance issues
 ```
@@ -362,11 +392,13 @@ antialias={false}  // Fallback if performance issues
 ### Issue: Blurry instead of smooth
 
 **Possible causes:**
+
 - Resolution too low (not matching DPI)
 - Browser zoom level not 100%
 - Display scaling settings
 
 **Fix:**
+
 ```typescript
 resolution={window.devicePixelRatio || 1}  // Ensure correct DPI
 autoDensity={true}                          // Handle automatically
@@ -377,6 +409,7 @@ autoDensity={true}                          // Handle automatically
 ### Changes Made
 
 **Before:**
+
 ```typescript
 // canvas.tsx - No antialiasing
 <Application
@@ -390,6 +423,7 @@ graphics.fill(0xffffff);
 ```
 
 **After:**
+
 ```typescript
 // canvas.tsx - Antialiasing enabled
 <Application
@@ -400,15 +434,16 @@ graphics.fill(0xffffff);
 />
 
 // video.tsx - Explicit fill options
-graphics.fill({ 
-  color: 0xffffff, 
-  alpha: 1 
+graphics.fill({
+  color: 0xffffff,
+  alpha: 1
 });  // ✅ IMPROVED
 ```
 
 ### Breaking Changes
 
 **None!**
+
 - No API changes
 - No user-facing changes
 - Purely visual quality improvement
@@ -417,6 +452,7 @@ graphics.fill({
 ### Testing Checklist
 
 After update, verify:
+
 - [ ] Border radius edges look smooth
 - [ ] No pixelation visible
 - [ ] Frame rate still 60 FPS
@@ -429,27 +465,32 @@ After update, verify:
 ### What Changed
 
 **Application (`canvas.tsx`):**
+
 ```typescript
 antialias={true}  // ✅ Added
 ```
 
 **Graphics fill (`video.tsx`):**
+
 ```typescript
-graphics.fill({ color: 0xffffff, alpha: 1 });  // ✅ Improved
+graphics.fill({ color: 0xffffff, alpha: 1 }); // ✅ Improved
 ```
 
 ### Results
 
 **Visual Quality:**
+
 - ❌ Before: Pixelated, jagged edges
 - ✅ After: Smooth, professional-quality edges
 
 **Performance:**
+
 - Frame rate: Still 60 FPS ✅
 - GPU cost: +1% (negligible) ✅
 - Memory: +2MB (negligible) ✅
 
 **User Experience:**
+
 - Much more polished appearance
 - Looks like native CSS border-radius
 - Professional, high-quality feel
@@ -457,6 +498,7 @@ graphics.fill({ color: 0xffffff, alpha: 1 });  // ✅ Improved
 ### Recommendation
 
 **Always use antialiasing** for WebGL content with:
+
 - Rounded corners
 - Curved shapes
 - Diagonal lines

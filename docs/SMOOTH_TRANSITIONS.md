@@ -5,6 +5,7 @@
 **Issue:** Canvas changes were laggy and jarring when adjusting blur strength, padding, or switching wallpapers.
 
 **User Experience:**
+
 - ❌ Slider movements caused instant jumps
 - ❌ Felt choppy and unresponsive
 - ❌ Hard on the eyes
@@ -19,12 +20,14 @@
 Instead of **instantly** applying new values, we **animate** from current to target value over time.
 
 **Before (Instant):**
+
 ```
 User moves slider: 10 → 30
 Canvas updates: 10 → 30 (INSTANT JUMP) ❌
 ```
 
 **After (Smooth):**
+
 ```
 User moves slider: 10 → 30
 Canvas animates: 10 → 12 → 15 → 19 → 24 → 28 → 30 ✅
@@ -47,27 +50,27 @@ const targetBlurRef = useRef(blurStrength);
 // Animation loop using requestAnimationFrame
 useEffect(() => {
   targetBlurRef.current = blurStrength; // Update target
-  
+
   let animationFrame: number;
   const animate = () => {
     setAnimatedBlur((current) => {
       const target = targetBlurRef.current;
       const diff = target - current;
-      
+
       // Stop when close enough (prevents infinite loop)
       if (Math.abs(diff) < 0.1) {
         return target;
       }
-      
+
       // Ease out: move 15% towards target each frame
       return current + diff * 0.15;
     });
-    
+
     animationFrame = requestAnimationFrame(animate);
   };
-  
+
   animationFrame = requestAnimationFrame(animate);
-  
+
   return () => {
     if (animationFrame) {
       cancelAnimationFrame(animationFrame);
@@ -99,25 +102,25 @@ const targetPaddingRef = useRef(padding);
 // Same animation pattern
 useEffect(() => {
   targetPaddingRef.current = padding;
-  
+
   let animationFrame: number;
   const animate = () => {
     setAnimatedPadding((current) => {
       const target = targetPaddingRef.current;
       const diff = target - current;
-      
+
       if (Math.abs(diff) < 0.1) {
         return target;
       }
-      
+
       return current + diff * 0.15; // Ease out
     });
-    
+
     animationFrame = requestAnimationFrame(animate);
   };
-  
+
   animationFrame = requestAnimationFrame(animate);
-  
+
   return () => {
     if (animationFrame) {
       cancelAnimationFrame(animationFrame);
@@ -138,12 +141,14 @@ const paddingPx = backgroundEnabled
 ### requestAnimationFrame
 
 **What it does:**
+
 - Runs callback before next browser repaint
 - Typically 60 FPS (every ~16.67ms)
 - Automatically pauses when tab is inactive
 - Perfect for smooth animations
 
 **Animation Loop:**
+
 ```typescript
 Frame 1 (0ms):    current=10, target=30, diff=20, new=10+20*0.15=13
 Frame 2 (16ms):   current=13, target=30, diff=17, new=13+17*0.15=15.55
@@ -155,16 +160,19 @@ Frame N (~500ms): current=29.95, target=30, diff=0.05, new=30 (done!)
 ### Easing Function: Linear Interpolation (Lerp)
 
 **Formula:**
+
 ```typescript
-newValue = currentValue + (targetValue - currentValue) * factor
+newValue = currentValue + (targetValue - currentValue) * factor;
 ```
 
 **Factor: 0.15 (15%)**
+
 - **Lower (0.05):** Slower, more gradual (800ms+)
 - **0.15:** Balanced, smooth (500ms)
 - **Higher (0.3):** Faster, snappier (300ms)
 
 **Why 0.15?**
+
 - Fast enough to feel responsive
 - Slow enough to be smooth
 - Sweet spot for UI animations
@@ -179,6 +187,7 @@ if (Math.abs(diff) < 0.1) {
 ```
 
 **Why 0.1 threshold?**
+
 - Prevents infinite loop (never exactly reaches target)
 - Difference of 0.1 is imperceptible
 - Saves CPU by stopping early
@@ -191,12 +200,14 @@ if (Math.abs(diff) < 0.1) {
 ### CPU Usage
 
 **Before (Instant):**
+
 ```
 Slider change → Single React render → Done
 CPU spike: ~5ms
 ```
 
 **After (Animated):**
+
 ```
 Slider change → Animation loop (30-40 frames) → Done
 CPU usage: ~0.5ms per frame × 30 frames = 15ms total
@@ -210,6 +221,7 @@ Spread over 500ms = barely noticeable
 **Target:** 60 FPS (16.67ms per frame)
 
 **Breakdown per frame:**
+
 ```
 Animation calculation: ~0.1ms
 React state update: ~0.3ms
@@ -222,6 +234,7 @@ Total: ~2.5-4.5ms per frame ✅
 ### Memory
 
 **Additional memory:**
+
 - 2 state variables: ~16 bytes each
 - 2 refs: ~16 bytes each
 - Animation frame ID: ~8 bytes
@@ -255,12 +268,14 @@ return current + diff * 0.35;
 ### Why 500ms (0.15 factor)?
 
 **Research-backed timing:**
+
 - 300ms: Feels too fast, can be jarring
 - **500ms:** Sweet spot - smooth but responsive ✅
 - 800ms: Feels sluggish
 - 1000ms+: Feels broken/laggy
 
 **Matches common UI frameworks:**
+
 - Material Design: 300-500ms
 - iOS: 300-500ms
 - CSS transitions: typically 300-500ms
@@ -273,6 +288,7 @@ return current + diff * 0.35;
 ### Before (Instant) ❌
 
 **Blur slider:**
+
 ```
 User drags: 10 → 15 → 20 → 25 → 30
 Canvas:     10 → 15 → 20 → 25 → 30 (jumpy)
@@ -281,6 +297,7 @@ Canvas:     10 → 15 → 20 → 25 → 30 (jumpy)
 **Feel:** Choppy, hard to control, jarring
 
 **Padding slider:**
+
 ```
 User drags: 5% → 8% → 12% → 15%
 Video size: JUMP JUMP JUMP JUMP
@@ -291,6 +308,7 @@ Video size: JUMP JUMP JUMP JUMP
 ### After (Animated) ✅
 
 **Blur slider:**
+
 ```
 User drags: 10 → 15 → 20 → 25 → 30
 Canvas:     10...11...12...13...14...15...17...19...22...25...27...29...30
@@ -300,6 +318,7 @@ Canvas:     10...11...12...13...14...15...17...19...22...25...27...29...30
 **Feel:** Buttery smooth, responsive, professional
 
 **Padding slider:**
+
 ```
 User drags: 5% → 8% → 12% → 15%
 Video size: Smoothly shrinks/grows with fluid animation
@@ -316,6 +335,7 @@ Video size: Smoothly shrinks/grows with fluid animation
 **Scenario:** User rapidly moves slider back and forth
 
 **Handling:**
+
 ```typescript
 targetBlurRef.current = blurStrength; // Always update target
 // Animation automatically adjusts direction
@@ -328,8 +348,9 @@ targetBlurRef.current = blurStrength; // Always update target
 **Scenario:** User switches tabs during animation
 
 **Handling:**
+
 ```typescript
-requestAnimationFrame // Automatically pauses
+requestAnimationFrame; // Automatically pauses
 // Resume when tab becomes active
 ```
 
@@ -340,6 +361,7 @@ requestAnimationFrame // Automatically pauses
 **Scenario:** Component unmounts mid-animation
 
 **Handling:**
+
 ```typescript
 return () => {
   if (animationFrame) {
@@ -355,6 +377,7 @@ return () => {
 **Scenario:** User makes tiny adjustment (10 → 11)
 
 **Handling:**
+
 ```typescript
 if (Math.abs(diff) < 0.1) {
   return target; // Complete quickly
@@ -374,9 +397,11 @@ if (Math.abs(diff) < 0.1) {
 ```
 
 **Pros:**
+
 - Easy to implement
 
 **Cons:**
+
 - ❌ Can't animate PixiJS canvas properties
 - ❌ Doesn't work with WebGL
 - ❌ Limited to DOM elements
@@ -388,10 +413,12 @@ gsap.to(filter, { strength: newValue, duration: 0.5 });
 ```
 
 **Pros:**
+
 - Powerful animation features
 - Many easing options
 
 **Cons:**
+
 - ❌ Extra dependency (~50KB)
 - ❌ Overkill for simple interpolation
 - ❌ Learning curve
@@ -405,9 +432,11 @@ app.ticker.add((delta) => {
 ```
 
 **Pros:**
+
 - Built into PixiJS
 
 **Cons:**
+
 - ⚠️ Ties animation to PixiJS lifecycle
 - ⚠️ Harder to cleanup
 - ⚠️ Less React-friendly
@@ -416,13 +445,16 @@ app.ticker.add((delta) => {
 
 ```typescript
 useEffect(() => {
-  const animate = () => { /* ... */ };
+  const animate = () => {
+    /* ... */
+  };
   const frame = requestAnimationFrame(animate);
   return () => cancelAnimationFrame(frame);
 }, [target]);
 ```
 
 **Pros:**
+
 - ✅ Native browser API (no dependencies)
 - ✅ Perfect for 60 FPS animations
 - ✅ React-friendly with useEffect
@@ -430,6 +462,7 @@ useEffect(() => {
 - ✅ Automatic pause when hidden
 
 **Cons:**
+
 - Requires manual easing (but simple)
 
 ---
@@ -475,20 +508,20 @@ const animate = () => {
   setAnimatedBlur((current) => {
     const target = targetBlurRef.current;
     const diff = target - current;
-    
-    console.log('Blur animation:', {
+
+    console.log("Blur animation:", {
       current: current.toFixed(2),
       target,
-      diff: diff.toFixed(2)
+      diff: diff.toFixed(2),
     });
-    
+
     if (Math.abs(diff) < 0.1) {
       return target;
     }
-    
+
     return current + diff * 0.15;
   });
-  
+
   animationFrame = requestAnimationFrame(animate);
 };
 ```
@@ -500,9 +533,11 @@ let lastTime = performance.now();
 const animate = () => {
   const now = performance.now();
   const delta = now - lastTime;
-  console.log(`Frame time: ${delta.toFixed(2)}ms (${(1000/delta).toFixed(0)} FPS)`);
+  console.log(
+    `Frame time: ${delta.toFixed(2)}ms (${(1000 / delta).toFixed(0)} FPS)`,
+  );
   lastTime = now;
-  
+
   // ... animation logic
 };
 ```
@@ -512,11 +547,11 @@ const animate = () => {
 ```typescript
 const animate = () => {
   const start = performance.now();
-  
+
   setAnimatedBlur((current) => {
     // ... animation logic
   });
-  
+
   const end = performance.now();
   console.log(`Animation took: ${(end - start).toFixed(3)}ms`);
 };
@@ -539,7 +574,9 @@ return current + diff * animationSpeed;
 ### 2. Disable Animations (Accessibility)
 
 ```typescript
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const prefersReducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)",
+).matches;
 
 const factor = prefersReducedMotion ? 1.0 : 0.15; // Instant if reduced motion
 ```
@@ -550,7 +587,7 @@ const factor = prefersReducedMotion ? 1.0 : 0.15; // Instant if reduced motion
 // More natural "springy" feel
 const spring = {
   tension: 170,
-  friction: 26
+  friction: 26,
 };
 
 // Apply spring physics instead of linear interpolation
@@ -590,12 +627,14 @@ const spring = {
 ### Changes Made
 
 **wallpaper.tsx:**
+
 1. ✅ Added `animatedBlur` state
 2. ✅ Added `requestAnimationFrame` loop
 3. ✅ Used `animatedBlur` instead of direct `blurStrength`
 4. ✅ Smooth interpolation with 0.15 ease-out factor
 
 **video.tsx:**
+
 1. ✅ Added `animatedPadding` state
 2. ✅ Added `requestAnimationFrame` loop
 3. ✅ Used `animatedPadding` instead of direct `padding`

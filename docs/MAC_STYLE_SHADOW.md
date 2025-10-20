@@ -30,6 +30,7 @@ const [videoShadow, setVideoShadow] = useState(VIDEO_SHADOW_VALUE);
 ```
 
 **Range:**
+
 - **Minimum:** 0 (no shadow)
 - **Maximum:** 100 (maximum shadow intensity)
 - **Default:** 30 (Mac-style medium shadow)
@@ -51,27 +52,27 @@ const targetShadowRef = useRef(videoShadow);
 // Smooth shadow animation
 useEffect(() => {
   targetShadowRef.current = videoShadow;
-  
+
   let animationFrame: number;
   const animate = () => {
     setAnimatedShadow((current) => {
       const target = targetShadowRef.current;
       const diff = target - current;
-      
+
       // Stop when close enough
       if (Math.abs(diff) < 0.1) {
         return target;
       }
-      
+
       // Ease out: 15% per frame
       return current + diff * 0.15;
     });
-    
+
     animationFrame = requestAnimationFrame(animate);
   };
-  
+
   animationFrame = requestAnimationFrame(animate);
-  
+
   return () => {
     if (animationFrame) {
       cancelAnimationFrame(animationFrame);
@@ -99,17 +100,17 @@ const shadowProps = useMemo(() => {
   const shadowAlpha = (animatedShadow / 100) * 0.4; // 0-0.4 opacity
   const shadowSize = (animatedShadow / 100) * 20; // 0-20px expansion
   const blurStrength = (animatedShadow / 100) * 25; // 0-25 blur
-  
+
   // Calculate border radius for shadow (matching video)
   const smallestDimension = Math.min(layout.width, layout.height);
   const radiusInPixels = (smallestDimension * animatedBorderRadius) / 100;
-  
+
   // Shadow dimensions and position
   const shadowWidth = layout.width + shadowSize * 2;
   const shadowHeight = layout.height + shadowSize * 2;
   const shadowX = layout.x - shadowWidth / 2;
   const shadowY = layout.y - shadowHeight / 2 + shadowOffset;
-  
+
   return {
     x: shadowX,
     y: shadowY,
@@ -124,13 +125,13 @@ const shadowProps = useMemo(() => {
 // Create blur filter for shadow
 const shadowBlurFilter = useMemo(() => {
   if (!shadowProps) return undefined;
-  
+
   const filter = new BlurFilter({
     strength: shadowProps.blur,
     quality: 4,
     kernelSize: 5,
   });
-  
+
   return filter;
 }, [shadowProps]);
 
@@ -154,7 +155,7 @@ return (
         filters={shadowBlurFilter ? [shadowBlurFilter] : undefined}
       />
     )}
-    
+
     {/* Video sprite */}
     <pixiSprite
       // ... video props
@@ -178,7 +179,7 @@ export function VideoTabContent() {
   return (
     <div className="space-y-7 pt-4">
       {/* ... Border Radius slider ... */}
-      
+
       <div className="w-full">
         <h3 className="text-sm font-semibold">Window Shadow</h3>
         <div className="w-full flex gap-2 items-center justify-between">
@@ -219,14 +220,15 @@ export function VideoTabContent() {
 
 **Slider value 0-100 maps to:**
 
-| Property | Min (0) | Default (30) | Max (100) | Formula |
-|----------|---------|--------------|-----------|---------|
-| **Vertical Offset** | 0px | 4.5px | 15px | `(value/100) * 15` |
-| **Opacity** | 0.0 | 0.12 | 0.4 | `(value/100) * 0.4` |
-| **Expansion** | 0px | 6px | 20px | `(value/100) * 20` |
-| **Blur Strength** | 0 | 7.5 | 25 | `(value/100) * 25` |
+| Property            | Min (0) | Default (30) | Max (100) | Formula             |
+| ------------------- | ------- | ------------ | --------- | ------------------- |
+| **Vertical Offset** | 0px     | 4.5px        | 15px      | `(value/100) * 15`  |
+| **Opacity**         | 0.0     | 0.12         | 0.4       | `(value/100) * 0.4` |
+| **Expansion**       | 0px     | 6px          | 20px      | `(value/100) * 20`  |
+| **Blur Strength**   | 0       | 7.5          | 25        | `(value/100) * 25`  |
 
 **Example at slider = 30 (default):**
+
 - Vertical offset: 4.5px downward
 - Opacity: 12% (0.12 alpha)
 - Shadow expands 6px beyond video edges
@@ -242,16 +244,15 @@ export function VideoTabContent() {
 ```tsx
 <>
   {/* 1. Shadow (rendered first, behind) */}
-  {shadowProps && (
-    <pixiGraphics {...shadowProps} />
-  )}
-  
+  {shadowProps && <pixiGraphics {...shadowProps} />}
+
   {/* 2. Video (rendered second, in front) */}
   <pixiSprite {...videoProps} />
 </>
 ```
 
 **Why:**
+
 - PixiJS renders children in order
 - First child renders to back layer
 - Last child renders to front layer
@@ -270,6 +271,7 @@ const shadowRadius = videoRadius; // ✅ Matches perfectly
 ```
 
 **Result:**
+
 - Rounded video → Rounded shadow
 - Sharp video → Sharp shadow
 - Always consistent ✅
@@ -280,11 +282,12 @@ const shadowRadius = videoRadius; // ✅ Matches perfectly
 
 ```typescript
 const shadowSize = (animatedShadow / 100) * 20; // 0-20px expansion
-const shadowWidth = layout.width + shadowSize * 2;  // +expansion on both sides
+const shadowWidth = layout.width + shadowSize * 2; // +expansion on both sides
 const shadowHeight = layout.height + shadowSize * 2; // +expansion top & bottom
 ```
 
 **Why expand shadow?**
+
 - Creates "glow" effect
 - More realistic (light diffusion)
 - Mimics real-world shadow behavior
@@ -296,13 +299,14 @@ const shadowHeight = layout.height + shadowSize * 2; // +expansion top & bottom
 
 ```typescript
 const filter = new BlurFilter({
-  strength: blurStrength,  // Variable based on slider
-  quality: 4,              // High quality (5 passes)
-  kernelSize: 5,           // Medium kernel (good balance)
+  strength: blurStrength, // Variable based on slider
+  quality: 4, // High quality (5 passes)
+  kernelSize: 5, // Medium kernel (good balance)
 });
 ```
 
 **Quality levels:**
+
 - **quality: 1** = Fast, pixelated
 - **quality: 2** = Standard
 - **quality: 4** = High quality (our choice) ✅
@@ -311,6 +315,7 @@ const filter = new BlurFilter({
 ### Performance Optimization
 
 **Conditional rendering:**
+
 ```typescript
 if (animatedShadow === 0 || !backgroundEnabled) {
   return undefined; // Skip shadow when not needed
@@ -318,12 +323,14 @@ if (animatedShadow === 0 || !backgroundEnabled) {
 ```
 
 **Benefits:**
+
 - ✅ No performance cost when shadow = 0
 - ✅ Shadow disabled with background
 - ✅ Graphics only created when needed
 - ✅ Filter only applied when shadow visible
 
 **Performance metrics:**
+
 - Graphics draw: ~0.2ms
 - Blur filter: ~1-2ms (GPU-accelerated)
 - Total: ~1.5-2.5ms per frame
@@ -334,6 +341,7 @@ if (animatedShadow === 0 || !backgroundEnabled) {
 ### Shadow Intensity Progression
 
 **Slider = 0 (No Shadow):**
+
 ```
 ┌────────────┐
 │   VIDEO    │  No shadow visible
@@ -341,6 +349,7 @@ if (animatedShadow === 0 || !backgroundEnabled) {
 ```
 
 **Slider = 20 (Subtle):**
+
 ```
 ┌────────────┐
 │   VIDEO    │  Very light shadow
@@ -349,6 +358,7 @@ if (animatedShadow === 0 || !backgroundEnabled) {
 ```
 
 **Slider = 30 (Default - Mac-style):**
+
 ```
 ┌────────────┐
 │   VIDEO    │  Professional shadow
@@ -357,6 +367,7 @@ if (animatedShadow === 0 || !backgroundEnabled) {
 ```
 
 **Slider = 50 (Medium):**
+
 ```
 ┌────────────┐
 │   VIDEO    │  Clear shadow
@@ -365,6 +376,7 @@ if (animatedShadow === 0 || !backgroundEnabled) {
 ```
 
 **Slider = 100 (Maximum):**
+
 ```
 ┌────────────┐
 │   VIDEO    │  Strong shadow
@@ -375,6 +387,7 @@ if (animatedShadow === 0 || !backgroundEnabled) {
 ### With Rounded Corners
 
 **Border radius + Shadow combination:**
+
 ```
 Shadow at 30, Border radius at 10:
 
@@ -385,6 +398,7 @@ Shadow at 30, Border radius at 10:
 ```
 
 **Perfect shape matching:**
+
 - Video corners: Rounded
 - Shadow corners: Rounded (same radius)
 - Visual harmony ✅
@@ -392,6 +406,7 @@ Shadow at 30, Border radius at 10:
 ## Comparison with Other Platforms
 
 ### macOS (Our Goal) ✅
+
 ```
 Characteristics:
 - Soft Gaussian blur
@@ -409,6 +424,7 @@ Our Implementation:
 ```
 
 ### Windows 11
+
 ```
 Characteristics:
 - Harder edges
@@ -423,6 +439,7 @@ vs Our Implementation:
 ```
 
 ### Material Design (Android)
+
 ```
 Characteristics:
 - Elevation-based
@@ -441,12 +458,14 @@ vs Our Implementation:
 ### By Use Case
 
 **Professional/Business (10-20):**
+
 ```
 Subtle shadow, clean appearance
 Good for: Corporate videos, presentations, professional content
 ```
 
 **Standard/Default (25-35):**
+
 ```
 Balanced visibility, Mac-style
 Good for: General content, tutorials, screencasts
@@ -454,12 +473,14 @@ Default: 30 ✅
 ```
 
 **Creative/Dramatic (40-60):**
+
 ```
 Noticeable depth, artistic
 Good for: Creative content, promotional videos, eye-catching
 ```
 
 **Maximum Impact (70-100):**
+
 ```
 Strong shadow, bold effect
 Good for: Specific artistic needs, testing
@@ -468,18 +489,22 @@ Good for: Specific artistic needs, testing
 ### By Background Type
 
 **Light backgrounds:** Use higher values (40-60)
+
 - Shadow more visible against light
 - Needs stronger contrast
 
 **Medium backgrounds:** Use default (25-35)
+
 - Balanced visibility
 - Mac-style standard
 
 **Dark backgrounds:** Use lower values (10-25)
+
 - Shadow less visible on dark
 - Don't overdo it
 
 **Patterned backgrounds:** Adjust as needed (20-40)
+
 - Depends on pattern complexity
 - May need more shadow to stand out
 
@@ -490,12 +515,14 @@ Good for: Specific artistic needs, testing
 **Pattern:** Same as border radius, blur, and padding
 
 **Timing:**
+
 - **Speed:** 15% per frame (0.15 factor)
 - **Duration:** ~500ms total
 - **Frame Rate:** 60 FPS
 - **Easing:** Ease-out (starts fast, slows down)
 
 **Example:**
+
 ```
 User moves slider: 0 → 50
 Animation: 0 → 7.5 → 14 → 20 → 26 → 32 → 38 → 43 → 47 → 49 → 50
@@ -505,6 +532,7 @@ Animation: 0 → 7.5 → 14 → 20 → 26 → 32 → 38 → 43 → 47 → 49 →
 ### Combined Animations
 
 **All visual properties animate together smoothly:**
+
 - Border radius animating
 - Shadow animating
 - Padding animating
@@ -517,6 +545,7 @@ Animation: 0 → 7.5 → 14 → 20 → 26 → 32 → 38 → 43 → 47 → 49 →
 ### WebGL Blur Support
 
 ✅ **All modern browsers:**
+
 - Chrome/Edge 90+
 - Firefox 88+
 - Safari 14+
@@ -527,6 +556,7 @@ Animation: 0 → 7.5 → 14 → 20 → 26 → 32 → 38 → 43 → 47 → 49 →
 ### Performance
 
 **GPU-accelerated blur:**
+
 - BlurFilter uses WebGL
 - Hardware-accelerated
 - Minimal CPU usage
@@ -537,16 +567,18 @@ Animation: 0 → 7.5 → 14 → 20 → 26 → 32 → 38 → 43 → 47 → 49 →
 ### Issue: Shadow not visible
 
 **Check:**
+
 1. Is shadow value > 0? (Check slider)
 2. Is background enabled? (Shadow requires background enabled)
 3. Is video rendering? (Shadow follows video layout)
 4. Is background very dark? (Shadow may blend in)
 
 **Debug:**
+
 ```typescript
-console.log('Shadow value:', videoShadow);
-console.log('Background enabled:', backgroundEnabled);
-console.log('Shadow props:', shadowProps);
+console.log("Shadow value:", videoShadow);
+console.log("Background enabled:", backgroundEnabled);
+console.log("Shadow props:", shadowProps);
 ```
 
 ### Issue: Shadow looks pixelated
@@ -555,6 +587,7 @@ console.log('Shadow props:', shadowProps);
 
 **Fix:**
 Already optimized with:
+
 - `quality: 4` (high quality)
 - `kernelSize: 5` (good balance)
 - Blur strength capped at 25
@@ -571,6 +604,7 @@ Already optimized with:
 4. **Update graphics drivers**
 
 **Performance is optimized:**
+
 - Conditional rendering (skip when 0)
 - Efficient blur filter (GPU-accelerated)
 - No unnecessary recalculations
@@ -580,11 +614,13 @@ Already optimized with:
 ### What Was Added
 
 ✅ **Context:**
+
 - `videoShadow` state (0-100)
 - `setVideoShadow` setter
 - `VIDEO_SHADOW_VALUE` constant (default 30)
 
 ✅ **Video Component:**
+
 - Smooth shadow animation
 - Mac-style shadow graphics
 - Blur filter for soft edges
@@ -592,6 +628,7 @@ Already optimized with:
 - Performance optimized
 
 ✅ **UI Controls:**
+
 - Slider in Video tab (0-100 range)
 - Reset button (to default 30)
 - Smooth visual feedback
@@ -599,6 +636,7 @@ Already optimized with:
 ### Key Features
 
 🎨 **Visual:**
+
 - Mac-style drop shadow
 - Soft, blurred edges
 - Vertical offset (gravity effect)
@@ -606,6 +644,7 @@ Already optimized with:
 - Fully customizable (0-100)
 
 ⚡ **Performance:**
+
 - GPU-accelerated blur
 - Conditional rendering
 - ~1.5-2.5ms per frame
@@ -613,6 +652,7 @@ Already optimized with:
 - Negligible memory impact
 
 🎯 **User Experience:**
+
 - Intuitive slider control
 - Live preview
 - Smooth animations
@@ -622,6 +662,7 @@ Already optimized with:
 ### Result
 
 Video now has a **beautiful Mac-style drop shadow** that:
+
 - ✨ Looks elegant and professional
 - 🚀 Performs smoothly (60 FPS)
 - 🎨 Matches video shape perfectly

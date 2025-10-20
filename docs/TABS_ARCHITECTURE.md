@@ -116,13 +116,14 @@ className={activeTab === "tab1" ? "active" : ""}
 ## Comparison: Native vs Custom
 
 ### Native Triggers (Before)
+
 ```tsx
 <Tabs defaultValue="tab1">
   <TabsList>                      ← Specific container
     <TabsTrigger value="tab1">    ← Specific button
     <TabsTrigger value="tab2">    ← Specific button
   </TabsList>
-  
+
   <TabsContentWrapper>
     <TabsContent value="tab1">...</TabsContent>
     <TabsContent value="tab2">...</TabsContent>
@@ -134,14 +135,19 @@ className={activeTab === "tab1" ? "active" : ""}
 **Cons:** Limited customization, fixed layout
 
 ### Custom Triggers (Your Approach)
+
 ```tsx
 <Tabs defaultValue="tab1">
-  <YourCustomLayout>              ← Any layout!
-    <YourCustomTrigger />         ← Any component!
-    <AnyElement />                ← Anything!
+  <YourCustomLayout>
+    {" "}
+    ← Any layout!
+    <YourCustomTrigger /> ← Any component!
+    <AnyElement /> ← Anything!
   </YourCustomLayout>
-  
-  <TabsContentWrapper>            ← Keep this part!
+
+  <TabsContentWrapper>
+    {" "}
+    ← Keep this part!
     <TabsContent value="tab1">...</TabsContent>
     <TabsContent value="tab2">...</TabsContent>
   </TabsContentWrapper>
@@ -154,27 +160,31 @@ className={activeTab === "tab1" ? "active" : ""}
 ## Key Concepts
 
 ### 1. Context Provider Pattern
+
 - `<Tabs>` creates a context
 - Any child component can access it with `useTabs()`
 - Works at any nesting level
 
 ### 2. Separation of Concerns
+
 - **Triggers**: Control which tab is active
 - **Content**: Display the active tab's content
 - **State**: Managed by context, shared between both
 
 ### 3. Value Matching
+
 ```tsx
 <button onClick={() => setActiveTab("profile")}>  ← Trigger
-  
+
 <TabsContent value="profile">                     ← Content
-  
+
 // "profile" must match exactly!
 ```
 
 ## Common Patterns Visualized
 
 ### Pattern 1: Sidebar + Content
+
 ```
 ┌────────┬──────────────────────────┐
 │ Nav 1  │                          │
@@ -188,6 +198,7 @@ Triggers         Content
 ```
 
 ### Pattern 2: Header Tabs
+
 ```
 ┌──────────────────────────────────┐
 │ [Tab1] [Tab2] [Tab3]             │
@@ -199,6 +210,7 @@ Triggers         Content
 ```
 
 ### Pattern 3: Card Selection
+
 ```
 ┌──────┐  ┌──────┐  ┌──────┐
 │Card 1│  │Card 2│  │Card 3│
@@ -210,6 +222,7 @@ Triggers         Content
 ```
 
 ### Pattern 4: Mixed Triggers
+
 ```
 ┌──────────────────────────────────┐
 │ [Native1] [Native2]    [Custom]  │
@@ -228,7 +241,7 @@ Think of the tabs component as having three layers:
 Layer 1: State Management (Tabs Context)
          ─────────────────────────
          Keeps track of activeTab
-         
+
          ↕ (useTabs hook)
 
 Layer 2: Triggers (Your Custom UI)

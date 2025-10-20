@@ -19,7 +19,7 @@ function TextShimmerComponent({
   spread = 2,
 }: TextShimmerProps) {
   const MotionComponent = motion.create(
-    Component as keyof JSX.IntrinsicElements
+    Component as keyof JSX.IntrinsicElements,
   );
 
   const dynamicSpread = useMemo(() => {
@@ -32,7 +32,7 @@ function TextShimmerComponent({
         "relative inline-block bg-[length:250%_100%,auto] bg-clip-text",
         "text-transparent [--base-color:var(--shimmer-text-highlight-color)] [--base-gradient-color:var(--shimmer-text-faded-color)]",
         "[background-repeat:no-repeat,padding-box] [--bg:linear-gradient(90deg,var(--shimmer-text-highlight-color)_calc(50%-var(--spread)),var(--base-gradient-color),var(--shimmer-text-highlight-color)_calc(50%+var(--spread)))]",
-        className
+        className,
       )}
       initial={{ backgroundPosition: "100% center" }}
       animate={{ backgroundPosition: "0% center" }}

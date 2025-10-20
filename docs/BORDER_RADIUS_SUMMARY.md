@@ -43,11 +43,13 @@ const radiusInPixels = (smallestDimension * animatedBorderRadius) / 100;
 ```
 
 **Why this matters:**
+
 - ✅ Looks consistent in normal preview and fullscreen
 - ✅ Scales proportionally with video size
 - ✅ Works across all resolutions and aspect ratios
 
 **Example:**
+
 - Slider at 10 = 10% of smallest dimension
 - Small video (600px): 60px radius
 - Fullscreen (1080px): 108px radius
@@ -94,11 +96,13 @@ graphics.fill(0xffffff);
 ```
 
 **Key features:**
+
 - ✅ Percentage-based scaling (responsive)
 - ✅ World coordinate system (proper alignment)
 - ✅ No position.set() (avoids double offset)
 
 **Why it works:**
+
 - Mask drawn in world coordinates where sprite actually is
 - Radius scales with video size (percentage of smallest dimension)
 - GPU-accelerated clipping
@@ -138,18 +142,21 @@ Slider Value → Visual Result (consistent across all sizes!)
 ## 🔍 Testing
 
 ### Visual Test
+
 1. Move slider from 0 → 100
 2. **Expected:** Smooth corner rounding
 3. **Expected:** No visual artifacts
 4. **Expected:** Maintains aspect ratio
 
 ### Performance Test
+
 1. Open DevTools → Performance
 2. Rapidly move slider
 3. **Expected:** Consistent 60 FPS
 4. **Expected:** No frame drops
 
 ### Edge Cases
+
 - ✅ Radius = 0 (no mask created)
 - ✅ Radius > video size (pill shape)
 - ✅ Works with padding
@@ -177,6 +184,7 @@ Slider Value → Visual Result (consistent across all sizes!)
 ## 🎉 Result
 
 Video now has **beautiful rounded corners** with:
+
 - ✨ Smooth animations (no lag!)
 - 🚀 GPU-accelerated rendering
 - 🎨 Customizable radius (0-100)

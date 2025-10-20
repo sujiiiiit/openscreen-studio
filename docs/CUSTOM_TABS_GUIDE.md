@@ -1,12 +1,15 @@
 # Quick Answer: Custom Tab Triggers
 
 ## Your Question
+
 "I want to use the ui/tab component, but I don't want to use the native tab triggers and list. I want to use TabsContent with custom tab triggers."
 
 ## The Solution
 
 ### ✅ What Changed
+
 The `tabs.tsx` component now supports:
+
 1. **`useTabs()` hook** - Access tab state from any child component
 2. **Controlled mode** - External state management with `value` and `onValueChange` props
 3. **Better documentation** - JSDoc comments explaining usage patterns
@@ -18,16 +21,21 @@ The `tabs.tsx` component now supports:
 **Use**: `useTabs()` hook in your custom components
 
 ```tsx
-import { Tabs, TabsContentWrapper, TabsContent, useTabs } from '@/components/ui/tabs';
+import {
+  Tabs,
+  TabsContentWrapper,
+  TabsContent,
+  useTabs,
+} from "@/components/ui/tabs";
 
 // Your custom trigger
 function MyTrigger({ value, label }) {
   const { activeTab, setActiveTab } = useTabs();
-  
+
   return (
-    <button 
+    <button
       onClick={() => setActiveTab(value)}
-      className={activeTab === value ? 'active' : ''}
+      className={activeTab === value ? "active" : ""}
     >
       {label}
     </button>
@@ -79,13 +87,14 @@ function MyComponent() {
 ## 🚀 Quick Start
 
 **Option 1: Simple inline triggers**
+
 ```tsx
 <Tabs defaultValue="home">
   <nav>
     <CustomButton value="home">Home</CustomButton>
     <CustomButton value="about">About</CustomButton>
   </nav>
-  
+
   <TabsContentWrapper>
     <TabsContent value="home">...</TabsContent>
     <TabsContent value="about">...</TabsContent>
@@ -94,25 +103,23 @@ function MyComponent() {
 ```
 
 **Option 2: Reusable trigger component**
+
 ```tsx
 function CustomTrigger({ value, children }) {
   const { activeTab, setActiveTab } = useTabs();
-  return (
-    <button onClick={() => setActiveTab(value)}>
-      {children}
-    </button>
-  );
+  return <button onClick={() => setActiveTab(value)}>{children}</button>;
 }
 ```
 
 **Option 3: Controlled mode (external state)**
+
 ```tsx
 const [tab, setTab] = useState("home");
 
 <Tabs value={tab} onValueChange={setTab} defaultValue="home">
   {/* Your triggers */}
   <TabsContentWrapper>...</TabsContentWrapper>
-</Tabs>
+</Tabs>;
 ```
 
 ## ⚡ Key Points

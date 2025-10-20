@@ -29,5 +29,11 @@
       "@electron/*": ["./electron/*"]
     }
   },
-  "include": ["src", "electron", "docs/examples/tabs-examples.tsx", "docs/examples/tabs-migration-guide.tsx", "docs/examples/tabs-simple-example.tsx"]
+  "include": [
+    "src",
+    "electron",
+    "docs/examples/tabs-examples.tsx",
+    "docs/examples/tabs-migration-guide.tsx",
+    "docs/examples/tabs-simple-example.tsx"
+  ]
 }
