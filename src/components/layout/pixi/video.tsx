@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { usePlayback } from "@/context/playback-context";
 import { useBackground } from "@/context/background-context";
+import { drawSquircle } from "@/lib/squircle";
 
 type BunnySpriteProps = {
   onVideoDimensions?: (dimensions: { width: number; height: number }) => void;
@@ -211,12 +212,14 @@ export default function VideoTexture({
       (smallestDimension * animatedValues.borderRadius) / 100;
 
     // Draw rounded rectangle in world coordinates
-    graphics.roundRect(
+    drawSquircle(
+      graphics,
       layout.x - layout.width / 2,
       layout.y - layout.height / 2,
       layout.width,
       layout.height,
       radiusInPixels,
+      0.6
     );
 
     graphics.fill({
@@ -310,12 +313,14 @@ export default function VideoTexture({
 
     const g = shadowGraphicsRef.current;
     g.clear();
-    g.roundRect(
+    drawSquircle(
+      g,
       shadowProps.x,
       shadowProps.y,
       shadowProps.width,
       shadowProps.height,
       shadowProps.radius,
+      0.6
     );
     g.fill({ color: 0x000000, alpha: shadowProps.alpha });
   }, [shadowProps]);
@@ -328,12 +333,14 @@ export default function VideoTexture({
           draw={(g) => {
             // Copy from pre-rendered graphics (avoid redrawing every frame)
             g.clear();
-            g.roundRect(
+            drawSquircle(
+              g,
               shadowProps.x,
               shadowProps.y,
               shadowProps.width,
               shadowProps.height,
               shadowProps.radius,
+              0.6
             );
             g.fill({ color: 0x000000, alpha: shadowProps.alpha });
           }}
