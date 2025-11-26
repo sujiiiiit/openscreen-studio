@@ -1,4 +1,4 @@
-import { Assets, BlurFilter, Texture } from "pixi.js";
+import { Assets, BlurFilter, Texture, NoiseFilter } from "pixi.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useBackground } from "@/context/background-context";
@@ -18,6 +18,7 @@ export default function WallpaperSprite({
     enabled,
     backgroundColor,
     backgroundMode,
+    grainStrength,
   } = useBackground();
 
   // Animated blur strength for smooth transitions
@@ -130,6 +131,16 @@ export default function WallpaperSprite({
     return filter;
   }, [animatedBlur]);
 
+  // Create noise filter for grainy texture
+  const noiseFilter = useMemo(() => {
+    if (grainStrength <= 0) return undefined;
+
+    return new NoiseFilter({
+      noise: grainStrength / 100, // Convert 0-100 to 0-1
+      seed: Math.random(), // Random seed for static noise
+    });
+  }, [grainStrength]);
+
   // Calculate layout to fill entire viewport (like CSS background-size: cover)
   // Extended to account for blur padding and prevent dark edges
   const layout = useMemo(() => {
@@ -215,6 +226,7 @@ export default function WallpaperSprite({
           g.drawRect(0, 0, viewportSize.width, viewportSize.height);
           g.endFill();
         }}
+        filters={noiseFilter ? [noiseFilter] : undefined}
       />
     );
   }
@@ -238,7 +250,7 @@ export default function WallpaperSprite({
       x={layout.x}
       y={layout.y}
       anchor={0.5}
-      filters={[blurFilter]}
+      filters={noiseFilter ? [blurFilter, noiseFilter] : [blurFilter]}
     />
   );
 }

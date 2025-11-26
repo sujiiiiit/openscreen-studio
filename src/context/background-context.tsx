@@ -7,6 +7,7 @@ interface BackgroundState {
   padding: number;
   videoBorderRadius: number;
   videoShadow: number;
+  grainStrength: number;
   backgroundColor: string;
   backgroundMode: "wallpaper" | "color" | "gradient" | "image";
 }
@@ -18,6 +19,7 @@ interface BackgroundContextValue extends BackgroundState {
   setPadding: (padding: number) => void;
   setVideoBorderRadius: (radius: number) => void;
   setVideoShadow: (shadow: number) => void;
+  setGrainStrength: (strength: number) => void;
   setBackgroundColor: (color: string) => void;
   setBackgroundMode: (
     mode: "wallpaper" | "color" | "gradient" | "image",
@@ -27,6 +29,7 @@ export const BACKGROUND_BLUR_VALUE = 0;
 export const BACKGROUND_PADDING_VALUE = 8;
 export const VIDEO_BORDER_RADIUS_VALUE = 1.5;
 export const VIDEO_SHADOW_VALUE = 30;
+export const BACKGROUND_GRAIN_VALUE = 0;
 
 const BackgroundContext = createContext<BackgroundContextValue | null>(null);
 
@@ -45,6 +48,8 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
   );
   // Shadow: 0-100 range, default 30 (Mac-style shadow)
   const [videoShadow, setVideoShadow] = useState(VIDEO_SHADOW_VALUE);
+  // Grain: 0-100 range, default 0 (no grain)
+  const [grainStrength, setGrainStrength] = useState(BACKGROUND_GRAIN_VALUE);
   // Background color for solid color mode
   const [backgroundColor, setBackgroundColor] = useState("#1a1a1a");
   // Background mode: wallpaper, color, gradient, or image
@@ -59,6 +64,7 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
     padding,
     videoBorderRadius,
     videoShadow,
+    grainStrength,
     backgroundColor,
     backgroundMode,
     setEnabled,
@@ -67,6 +73,7 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
     setPadding,
     setVideoBorderRadius,
     setVideoShadow,
+    setGrainStrength,
     setBackgroundColor,
     setBackgroundMode,
   };

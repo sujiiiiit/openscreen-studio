@@ -8,6 +8,7 @@ import {
   useBackground,
   BACKGROUND_BLUR_VALUE,
   BACKGROUND_PADDING_VALUE,
+  BACKGROUND_GRAIN_VALUE,
 } from "@/context/background-context";
 
 export function BackgroundTabContent() {
@@ -19,6 +20,8 @@ export function BackgroundTabContent() {
     setBlurStrength,
     padding,
     setPadding,
+    grainStrength,
+    setGrainStrength,
   } = useBackground();
 
   return (
@@ -67,6 +70,25 @@ export function BackgroundTabContent() {
               variant="link"
               size="sm"
               onClick={() => setPadding(BACKGROUND_PADDING_VALUE)}
+            >
+              Reset
+            </Button>
+          </div>
+        </div>
+        <div className="w-full">
+          <h3 className="text-sm font-semibold">Grain</h3>
+          <div className="w-full flex gap-2 items-center justify-between">
+            <Slider
+              showTooltip
+              value={[grainStrength]}
+              onValueChange={(values) => setGrainStrength(values[0])}
+              min={0}
+              max={50}
+            />
+            <Button
+              variant="link"
+              size="sm"
+              onClick={() => setGrainStrength(BACKGROUND_GRAIN_VALUE)}
             >
               Reset
             </Button>
