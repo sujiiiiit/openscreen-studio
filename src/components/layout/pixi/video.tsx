@@ -108,6 +108,11 @@ export default function VideoTexture({
     const hydrateTexture = (nextTexture: Texture) => {
       setTexture(nextTexture);
 
+      if (nextTexture.source && nextTexture.source.resource) {
+        // In PixiJS v8, the resource is the HTMLVideoElement for video textures
+        registerVideoElement(nextTexture.source.resource as HTMLVideoElement);
+      }
+
       if (onVideoDimensions) {
         const width = nextTexture.width || nextTexture.source?.width || 0;
         const height = nextTexture.height || nextTexture.source?.height || 0;
@@ -137,11 +142,18 @@ export default function VideoTexture({
 
     return () => {
       disposed = true;
-      if (currentUrl) {
-        void Assets.unload(currentUrl);
-      }
+      // Do NOT unload the asset here. It is shared between the main app and the export renderer.
+      // Unloading it here destroys the texture for both, causing a crash in the main app.
+      // if (currentUrl) {
+      //   void Assets.unload(currentUrl);
+      // }
       setTexture(Texture.EMPTY);
-      registerVideoElement(null);
+      // Only clear the video element if we are the one who set it?
+      // Actually, for now, let's just not clear it on unmount to be safe,
+      // or we need a way to know if we are the "main" player.
+      // Ideally, the context should handle multiple registrants or we should check if we are the active one.
+      // For now, commenting this out to prevent the main player from losing the video reference during export cleanup.
+      // registerVideoElement(null);
     };
   }, [
     onVideoDimensions,

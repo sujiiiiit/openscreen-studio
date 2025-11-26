@@ -15,6 +15,10 @@ import {
 import PixiVideoPlayer, {
   type PixiVideoPlayerHandle,
 } from "@/components/layout/pixi/canvas";
+import ExportDialog from "@/components/layout/export-dialog";
+import ExportSettingsDialog, {
+  type ExportSettings,
+} from "@/components/layout/export-settings-dialog";
 
 import { useMemo, useRef, useState, useEffect } from "react";
 import { usePresentation } from "@/context/presentation-context";
@@ -31,6 +35,12 @@ export default function Main() {
   const [aspectId, setAspectId] = useState<string>(
     ASPECT_OPTIONS[0]?.id ?? "16-9",
   );
+  const [isExporting, setIsExporting] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [exportTimeRemaining, setExportTimeRemaining] = useState<number | null>(
+    null,
+  );
   const pixiRef = useRef<PixiVideoPlayerHandle>(null);
   const { setIsPresenting, registerPresentationHandler, togglePresentation } =
     usePresentation();
@@ -41,6 +51,26 @@ export default function Main() {
       ASPECT_OPTIONS[0]
     );
   }, [aspectId]);
+
+  const handleStartExport = async (settings: ExportSettings) => {
+    const handle = pixiRef.current;
+    if (!handle) return;
+
+    setIsExporting(true);
+    setExportProgress(0);
+    setExportTimeRemaining(null);
+
+    try {
+      await handle.exportVideo(settings, (progress, remaining) => {
+        setExportProgress(progress);
+        setExportTimeRemaining(remaining);
+      });
+    } catch (e) {
+      console.error("Export failed", e);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   useEffect(() => {
     const handleToggle = async () => {
@@ -127,9 +157,26 @@ export default function Main() {
             <Button onClick={togglePresentation} variant={"secondary"}>
               Present
             </Button>
+            <Button
+              onClick={() => setIsSettingsOpen(true)}
+              variant="secondary"
+              disabled={isExporting}
+            >
+              Export Video
+            </Button>
           </div>
         </div>
       </section>
+      <ExportSettingsDialog
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+        onExport={handleStartExport}
+      />
+      <ExportDialog
+        open={isExporting}
+        progress={exportProgress}
+        estimatedSecondsRemaining={exportTimeRemaining}
+      />
     </main>
   );
 }

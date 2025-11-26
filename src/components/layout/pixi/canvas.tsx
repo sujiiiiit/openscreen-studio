@@ -1,5 +1,12 @@
 import { Application, extend } from "@pixi/react";
 import {
+  Output,
+  Mp4OutputFormat,
+  WebMOutputFormat,
+  BufferTarget,
+  CanvasSource,
+} from "mediabunny";
+import {
   Container,
   Graphics,
   Sprite,
@@ -18,6 +25,11 @@ import {
 } from "react";
 
 import CompositeScene from "./composite";
+import { usePlayback } from "@/context/playback-context";
+import ExportRenderer from "./export-renderer";
+import { type ExportSettings } from "../export-settings-dialog";
+
+extend({ Container, Graphics, Sprite });
 
 extend({ Container, Graphics, Sprite });
 
@@ -57,6 +69,63 @@ function computeViewportSize(
   }
 
   return { width, height };
+}
+
+function getExportDimensions(
+  resolution: ExportSettings["resolution"],
+  aspectRatio: number,
+): Dimensions {
+  let longEdge = 1920;
+  switch (resolution) {
+    case "4k":
+      longEdge = 3840;
+      break;
+    case "1080p":
+      longEdge = 1920;
+      break;
+    case "720p":
+      longEdge = 1280;
+      break;
+    case "480p":
+      longEdge = 854;
+      break;
+  }
+
+  if (aspectRatio >= 1) {
+    return {
+      width: longEdge,
+      height: Math.round(longEdge / aspectRatio),
+    };
+  } else {
+    return {
+      width: Math.round(longEdge * aspectRatio),
+      height: longEdge,
+    };
+  }
+}
+
+function getQualityBitrate(
+  quality: ExportSettings["quality"],
+  resolution: ExportSettings["resolution"],
+) {
+  // Base bitrates in bits per second
+  const baseBitrate = {
+    "4k": 45_000_000, // 45 Mbps for 4K
+    "1080p": 12_000_000, // 12 Mbps for 1080p
+    "720p": 6_000_000, // 6 Mbps for 720p
+    "480p": 2_500_000, // 2.5 Mbps for 480p
+  }[resolution];
+
+  switch (quality) {
+    case "high":
+      return baseBitrate * 1.5; // Boost for high quality (e.g. ~67 Mbps for 4K)
+    case "medium":
+      return baseBitrate;
+    case "low":
+      return baseBitrate * 0.5;
+    default:
+      return baseBitrate;
+  }
 }
 
 async function requestFullscreen(element: HTMLDivElement) {
@@ -119,6 +188,10 @@ export type PixiVideoPlayerHandle = {
   toggleFullscreen: () => Promise<void>;
   isFullscreen: () => boolean;
   getContainer: () => HTMLDivElement | null;
+  exportVideo: (
+    settings: ExportSettings,
+    onProgress: (progress: number, estimatedSeconds: number) => void,
+  ) => Promise<void>;
 };
 
 type PixiVideoPlayerProps = {
@@ -133,6 +206,15 @@ export const PixiApp = forwardRef(function PixiVideoPlayer(
   const containerRef = useRef<HTMLDivElement>(null);
   const stageWrapperRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<PixiApplication | null>(null);
+  const playback = usePlayback();
+
+  const [exportConfig, setExportConfig] = useState<{
+    width: number;
+    height: number;
+    resolution: number;
+    onReady: (app: PixiApplication) => void;
+  } | null>(null);
+
   const [containerSize, setContainerSize] = useState<Dimensions>({
     width: 0,
     height: 0,
@@ -311,8 +393,132 @@ export const PixiApp = forwardRef(function PixiVideoPlayer(
       },
       isFullscreen,
       getContainer: () => containerRef.current,
+      exportVideo: async (
+        settings: ExportSettings,
+        onProgress: (progress: number, estimatedSeconds: number) => void,
+      ) => {
+        const video = playback.videoElement;
+        const duration = playback.duration;
+
+        if (!video || duration <= 0) {
+          console.error("Cannot export: missing video or duration");
+          return;
+        }
+
+        // Pause playback
+        await playback.pause();
+
+        const aspectRatio =
+          targetAspectRatio && targetAspectRatio.height > 0
+            ? targetAspectRatio.width / targetAspectRatio.height
+            : 16 / 9;
+
+        const { width, height } = getExportDimensions(
+          settings.resolution,
+          aspectRatio,
+        );
+
+        // Use a fixed high resolution (2) for export to ensure crisp text and filters
+        // This mimics a "Retina" display environment for the renderer
+        const exportResolution = 2;
+        const logicalWidth = width / exportResolution;
+        const logicalHeight = height / exportResolution;
+
+        return new Promise<void>((resolve, reject) => {
+          setExportConfig({
+            width: logicalWidth,
+            height: logicalHeight,
+            resolution: exportResolution,
+            onReady: async (exportApp) => {
+              try {
+                const fps = 30;
+                const totalFrames = Math.ceil(duration * fps);
+                const startTime = performance.now();
+
+                const output = new Output({
+                  format:
+                    settings.format === "webm"
+                      ? new WebMOutputFormat()
+                      : new Mp4OutputFormat(),
+                  target: new BufferTarget(),
+                });
+
+                const source = new CanvasSource(
+                  exportApp.canvas as HTMLCanvasElement,
+                  {
+                    codec: settings.format === "webm" ? "vp9" : "avc",
+                    bitrate: getQualityBitrate(
+                      settings.quality,
+                      settings.resolution,
+                    ),
+                  },
+                );
+
+                output.addVideoTrack(source, { frameRate: fps });
+                await output.start();
+
+                const waitForSeek = () => {
+                  return new Promise<void>((resolve) => {
+                    const onSeeked = () => {
+                      video.removeEventListener("seeked", onSeeked);
+                      resolve();
+                    };
+                    video.addEventListener("seeked", onSeeked, { once: true });
+                  });
+                };
+
+                for (let i = 0; i < totalFrames; i++) {
+                  const time = i / fps;
+
+                  // Seek video
+                  video.currentTime = time;
+                  await waitForSeek();
+
+                  // Force Pixi render
+                  exportApp.renderer.render(exportApp.stage);
+
+                  // Add frame
+                  await source.add(time, 1 / fps);
+
+                  // Calculate progress
+                  const progress = (i + 1) / totalFrames;
+                  const elapsed = (performance.now() - startTime) / 1000;
+                  const estimatedTotal = elapsed / progress;
+                  const remaining = estimatedTotal - elapsed;
+
+                  onProgress(progress, remaining);
+
+                  // Allow UI to update
+                  await new Promise((r) => setTimeout(r, 0));
+                }
+
+                await output.finalize();
+
+                const buffer = output.target.buffer;
+                if (buffer) {
+                  const blob = new Blob([buffer], {
+                    type:
+                      settings.format === "webm" ? "video/webm" : "video/mp4",
+                  });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `export-${Date.now()}.${settings.format}`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }
+                resolve();
+              } catch (e) {
+                reject(e);
+              } finally {
+                setExportConfig(null);
+              }
+            },
+          });
+        });
+      },
     }),
-    [isFullscreen],
+    [isFullscreen, playback, targetAspectRatio],
   );
   useEffect(() => {
     if (typeof document === "undefined") {
@@ -363,6 +569,14 @@ export const PixiApp = forwardRef(function PixiVideoPlayer(
           </Application>
         )}
       </div>
+      {exportConfig && (
+        <ExportRenderer
+          width={exportConfig.width}
+          height={exportConfig.height}
+          resolution={exportConfig.resolution}
+          onInit={exportConfig.onReady}
+        />
+      )}
     </div>
   );
 });

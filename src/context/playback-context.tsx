@@ -26,6 +26,7 @@ interface PlaybackContextValue {
   timelineZoom: number;
   setTimelineZoom: (zoom: number) => void;
   setDurationHint: (duration: number | null) => void;
+  videoElement: HTMLVideoElement | null;
 }
 
 const PlaybackContext = createContext<PlaybackContextValue | undefined>(
@@ -255,6 +256,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       timelineZoom,
       setTimelineZoom,
       setDurationHint: handleDurationHint,
+      videoElement: videoRef.current,
     }),
     [
       currentTime,
@@ -269,6 +271,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       timelineZoom,
       setTimelineZoom,
       handleDurationHint,
+      videoRef.current,
     ],
   );
 

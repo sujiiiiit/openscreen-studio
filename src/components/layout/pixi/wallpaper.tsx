@@ -30,6 +30,8 @@ export default function WallpaperSprite({
     targetBlurRef.current = blurStrength;
 
     let animationFrame: number;
+    let isAnimating = true;
+
     const animate = () => {
       setAnimatedBlur((current) => {
         const target = targetBlurRef.current;
@@ -37,13 +39,17 @@ export default function WallpaperSprite({
 
         // Smooth interpolation (ease out)
         if (Math.abs(diff) < 0.1) {
+          isAnimating = false;
           return target;
         }
 
+        isAnimating = true;
         return current + diff * 0.15; // 15% towards target each frame
       });
 
-      animationFrame = requestAnimationFrame(animate);
+      if (isAnimating) {
+        animationFrame = requestAnimationFrame(animate);
+      }
     };
 
     animationFrame = requestAnimationFrame(animate);
@@ -229,16 +235,6 @@ export default function WallpaperSprite({
         filters={noiseFilter ? [noiseFilter] : undefined}
       />
     );
-  }
-
-  // Debug: Log layout to verify coverage
-  if (process.env.NODE_ENV === "development") {
-    console.log("Wallpaper layout:", {
-      viewport: viewportSize,
-      rendered: { width: layout.width, height: layout.height },
-      position: { x: layout.x, y: layout.y },
-      blurStrength,
-    });
   }
 
   return (
