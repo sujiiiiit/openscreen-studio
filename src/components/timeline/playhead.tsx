@@ -1,5 +1,6 @@
 import { usePlayback } from "@/context/playback-context";
-import { useRef } from "react";
+import { useEffect } from "react";
+import { motion, useMotionValue } from "framer-motion";
 import { TIMELINE_START_LEFT } from "./constants";
 
 interface PlayheadProps {
@@ -7,21 +8,38 @@ interface PlayheadProps {
 }
 
 export default function Playhead({ zoom }: PlayheadProps) {
-  const { currentTime } = usePlayback();
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Use ref for smoother updates if possible, but React state is fine for now
-  // If performance is an issue, we can use requestAnimationFrame to update the style directly
+  const { currentTime, subscribeToTimeUpdate } = usePlayback();
   
+  // Create a motion value for the x position
+  // Initialize it with the current position
+  const x = useMotionValue(TIMELINE_START_LEFT + currentTime * zoom);
+
+  // Subscribe to smooth time updates
+  useEffect(() => {
+    if (!subscribeToTimeUpdate) return;
+    
+    const updatePosition = (time: number) => {
+      // Update the motion value directly
+      // This bypasses React render cycle and updates the DOM style directly
+      const position = TIMELINE_START_LEFT + time * zoom;
+      x.set(position);
+    };
+    
+    // Initial position update in case zoom changed
+    updatePosition(currentTime);
+    
+    return subscribeToTimeUpdate(updatePosition);
+  }, [subscribeToTimeUpdate, zoom, currentTime, x]);
+
   return (
-    <div
-      ref={ref}
-      className="absolute top-0 bottom-0 w-px bg-red-500 z-50 pointer-events-none"
+    <motion.div
+      className="absolute top-0 bottom-0 w-px bg-red-500 z-50 pointer-events-none will-change-transform"
       style={{
-        left: TIMELINE_START_LEFT + currentTime * zoom,
+        left: 0,
+        x // Bind the motion value to the x transform
       }}
     >
       <div className="absolute -top-1 -left-1.5 w-3 h-3 bg-red-500 rotate-45 rounded-sm" />
-    </div>
+    </motion.div>
   );
 }

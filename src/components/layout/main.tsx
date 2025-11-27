@@ -1,13 +1,13 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  AspectRatioIcon,
-  RectangularIcon,
-  SquareIcon,
-  PlayIcon,
-  PauseIcon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
-  Scissor01Icon,
+  AspectRatioIcon,
+  PauseIcon,
+  PlayIcon,
+  RectangularIcon,
+  ScissorIcon,
+  SquareIcon,
 } from "@hugeicons/core-free-icons";
 import {
   Select,
@@ -27,8 +27,13 @@ import ExportSettingsDialog, {
 } from "@/components/layout/export-settings-dialog";
 
 import { useMemo, useRef, useState, useEffect } from "react";
+import { useExport } from "@/context/export-context";
 import { usePresentation } from "@/context/presentation-context";
-import { usePlayback, TIMELINE_ZOOM_MIN, TIMELINE_ZOOM_MAX } from "@/context/playback-context";
+import {
+  usePlayback,
+  TIMELINE_ZOOM_MIN,
+  TIMELINE_ZOOM_MAX,
+} from "@/context/playback-context";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 
@@ -49,26 +54,56 @@ function formatTime(seconds: number) {
     .padStart(2, "0")}.${milliseconds.toString().padStart(2, "0")}`;
 }
 
+function TimeDisplay() {
+  const { currentTime, subscribeToTimeUpdate } = usePlayback();
+  const [displayTime, setDisplayTime] = useState(currentTime);
+
+  useEffect(() => {
+    setDisplayTime(currentTime);
+    if (!subscribeToTimeUpdate) return;
+    return subscribeToTimeUpdate((time) => setDisplayTime(time));
+  }, [currentTime, subscribeToTimeUpdate]);
+
+  return (
+    <div className="text-xs select-none tabular-nums">
+      {formatTime(displayTime)}
+    </div>
+  );
+}
+
 export default function Main() {
   const [aspectId, setAspectId] = useState<string>(
-    ASPECT_OPTIONS[0]?.id ?? "16-9",
+    ASPECT_OPTIONS[0]?.id ?? "16-9"
   );
-  const [isExporting, setIsExporting] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [exportProgress, setExportProgress] = useState(0);
-  const [exportTimeRemaining, setExportTimeRemaining] = useState<number | null>(
-    null,
-  );
+  const {
+    isSettingsOpen,
+    setIsSettingsOpen,
+    isExporting,
+    setIsExporting,
+    exportProgress,
+    setExportProgress,
+    exportTimeRemaining,
+    setExportTimeRemaining,
+  } = useExport();
+
   const pixiRef = useRef<PixiVideoPlayerHandle>(null);
-  const { setIsPresenting, registerPresentationHandler, togglePresentation } =
-    usePresentation();
-  const { isPlaying, togglePlay, currentTime, duration, step, timelineZoom, setTimelineZoom, scissorMode, toggleScissorMode } = usePlayback();
+  const { setIsPresenting, registerPresentationHandler } = usePresentation();
+  const {
+    isPlaying,
+    togglePlay,
+    duration,
+    step,
+    timelineZoom,
+    setTimelineZoom,
+    scissorMode,
+    toggleScissorMode,
+  } = usePlayback();
 
   const handleZoomChange = (value: number) => {
-    setTimelineZoom(Math.min(TIMELINE_ZOOM_MAX, Math.max(TIMELINE_ZOOM_MIN, value)));
+    setTimelineZoom(
+      Math.min(TIMELINE_ZOOM_MAX, Math.max(TIMELINE_ZOOM_MIN, value))
+    );
   };
-
-
 
   const activeAspect = useMemo(() => {
     return (
@@ -133,7 +168,7 @@ export default function Main() {
       <section id="controls" className="p-3">
         <div className="h-[var(--titlebar-height)] bg-transparent rounded-md flex flex-row items-center justify-between px-3 gap-2">
           <div className="flex gap-2 items-center">
-                       <Select
+            <Select
               value={aspectId}
               onValueChange={(value) => {
                 setAspectId(value);
@@ -179,50 +214,41 @@ export default function Main() {
                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={togglePresentation} variant={"secondary"}>
-              Present
-            </Button>
-            <Button
-              onClick={() => setIsSettingsOpen(true)}
-              variant="secondary"
-              disabled={isExporting}
-            >
-              Export Video
-            </Button>
           </div>
-           <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <TimeDisplay />
+            <Button variant="ghost" size="icon" onClick={() => step(-5)}>
+              <HugeiconsIcon icon={ArrowLeft01Icon} />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={togglePlay}>
+              <HugeiconsIcon icon={isPlaying ? PauseIcon : PlayIcon} />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => step(5)}>
+              <HugeiconsIcon icon={ArrowRight01Icon} />
+            </Button>
+
             <div className="text-xs select-none tabular-nums">
-              {formatTime(currentTime)}
+              {formatTime(duration)}
             </div>
-              <Button variant="ghost" size="icon" onClick={() => step(-5)}>
-                <HugeiconsIcon icon={ArrowLeft01Icon} />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={togglePlay}>
-                <HugeiconsIcon icon={isPlaying ? PauseIcon : PlayIcon} />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => step(5)}>
-                <HugeiconsIcon icon={ArrowRight01Icon} />
-              </Button>
-              <Button 
-                variant={scissorMode ? "default" : "ghost"} 
-                size="icon" 
-                onClick={toggleScissorMode}
-                className={cn(scissorMode && "bg-primary text-primary-foreground")}
-                title="Split Tool (click on clip to split)"
-              >
-                <HugeiconsIcon icon={Scissor01Icon} />
-              </Button>
-              
-                <div className="text-xs select-none tabular-nums">
-                {formatTime(duration)}
-                </div>
-            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant={scissorMode ? "default" : "ghost"}
+              size="icon"
+              onClick={toggleScissorMode}
+              className={cn(
+                scissorMode && "bg-primary text-primary-foreground"
+              )}
+            >
+              <HugeiconsIcon icon={ScissorIcon} />
+            </Button>
             <ZoomSlider
               zoom={timelineZoom}
               minZoom={TIMELINE_ZOOM_MIN}
               maxZoom={TIMELINE_ZOOM_MAX}
               onZoomChange={handleZoomChange}
             />
+          </div>
         </div>
       </section>
       <ExportSettingsDialog

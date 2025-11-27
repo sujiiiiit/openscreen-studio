@@ -9,15 +9,22 @@ import {
   Folder02Icon,
   Redo03Icon,
   Undo03Icon,
+  PlayIcon,
+  Download01Icon,
 } from "@hugeicons/core-free-icons";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { usePresentation } from "@/context/presentation-context";
+import { useExport } from "@/context/export-context";
+
 export default function TitleBar() {
   const isMaximized = useWindowState();
   const windowControls = useWindowControls();
+  const { togglePresentation } = usePresentation();
+  const { setIsSettingsOpen, isExporting } = useExport();
 
   return (
     <div
@@ -103,7 +110,29 @@ export default function TitleBar() {
         ) : null}
       </div>
 
-      <div>
+      <div
+        className="flex items-center gap-1"
+        style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+      >
+        <Button
+          onClick={togglePresentation}
+          variant="ghost"
+          size="sm"
+          className="h-8 px-3"
+        >
+          <HugeiconsIcon icon={PlayIcon} className="mr-2 size-4" />
+          Present
+        </Button>
+        <Button
+          onClick={() => setIsSettingsOpen(true)}
+          variant="ghost"
+          size="sm"
+          disabled={isExporting}
+          className="h-8 px-3 mr-2"
+        >
+          <HugeiconsIcon icon={Download01Icon} className="mr-2 size-4" />
+          Export
+        </Button>
         {isMacintosh ? null : (
           <WindowsWindowControls
             isMaximized={isMaximized}

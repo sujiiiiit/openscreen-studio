@@ -1,5 +1,5 @@
 import { Slider } from "@/components/ui/slider";
-import { ZoomIn, ZoomOut } from "lucide-react";
+// import { ZoomIn, ZoomOut } from "lucide-react";
 
 interface ZoomSliderProps {
   zoom: number;
@@ -16,14 +16,14 @@ export function ZoomSlider({
 }: ZoomSliderProps) {
   return (
     <div className="flex items-center gap-2">
-      <button
+      {/* <button
         onClick={() => onZoomChange(Math.max(minZoom, zoom - (zoom < 50 ? 5 : 10)))}
         className="rounded-full border border-white/10 p-1 text-muted-foreground hover:border-white/30 hover:text-foreground"
         aria-label="Zoom out"
       >
         <ZoomOut className="size-3" />
-      </button>
-      <div className="flex w-20 sm:w-28 md:w-32 flex-col">
+      </button> */}
+      <div className="flex w-20 sm:w-28 md:w-32  gap-2 flex-nowrap">
         <Slider
           max={maxZoom}
           min={minZoom}
@@ -35,17 +35,17 @@ export function ZoomSlider({
             }
           }}
         />
-        <span className="text-center text-[10px] text-muted-foreground">
-          {zoom < 100 ? Math.round(zoom) : zoom.toFixed(0)}px/s
+        <span className="text-center text-xs text-muted-foreground">
+          {zoom < 100 ? Math.round(zoom) : zoom.toFixed(0)}%
         </span>
       </div>
-      <button
+      {/* <button
         onClick={() => onZoomChange(Math.min(maxZoom, zoom + (zoom < 50 ? 5 : 10)))}
         className="rounded-full border border-white/10 p-1 text-muted-foreground hover:border-white/30 hover:text-foreground"
         aria-label="Zoom in"
       >
         <ZoomIn className="size-3" />
-      </button>
+      </button> */}
     </div>
   );
 }

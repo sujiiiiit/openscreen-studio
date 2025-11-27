@@ -399,6 +399,7 @@ export const PixiApp = forwardRef(function PixiVideoPlayer(
       ) => {
         const video = playback.videoElement;
         const duration = playback.duration;
+        const clips = playback.clips;
 
         if (!video || duration <= 0) {
           console.error("Cannot export: missing video or duration");
@@ -470,8 +471,20 @@ export const PixiApp = forwardRef(function PixiVideoPlayer(
                 for (let i = 0; i < totalFrames; i++) {
                   const time = i / fps;
 
+                  // Calculate video time based on clips
+                  let videoTime = time;
+                  if (clips && clips.length > 0) {
+                    const activeClip = clips.find(
+                      (c) => time >= c.start && time < c.start + c.duration,
+                    );
+                    if (activeClip) {
+                      const offset = time - activeClip.start;
+                      videoTime = activeClip.trimStart + offset;
+                    }
+                  }
+
                   // Seek video
-                  video.currentTime = time;
+                  video.currentTime = videoTime;
                   await waitForSeek();
 
                   // Force Pixi render

@@ -474,7 +474,7 @@ export default function Clip({
     <div
       ref={clipRef}
       className={cn(
-        "group absolute flex h-[calc(100%-8px)] select-none items-center overflow-hidden rounded-xl sm:rounded-2xl border border-white/10 px-2 sm:px-3 text-xs font-medium text-white transition",
+        "group absolute flex h-[calc(100%-8px)] select-none items-center justify-center overflow-hidden rounded-xl sm:rounded-2xl border border-white/10 px-2 sm:px-3 text-xs   transition",
         (isDragging || resizeMode) && !isLocked && "ring-2 ring-primary",
         isSelected && "ring-2 ring-white",
         isLocked && "opacity-70",
@@ -514,7 +514,7 @@ export default function Clip({
           </div>
           {/* Time indicator tooltip */}
           <div 
-            className="absolute -top-8 z-40 pointer-events-none transform -translate-x-1/2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg whitespace-nowrap"
+            className="absolute -top-8 z-40 pointer-events-none transform -translate-x-1/2 bg-red-500  text-[10px] font-bold px-2 py-1 rounded-md shadow-lg whitespace-nowrap"
             style={{ left: scissorHoverX }}
           >
             {formatTimeWithMs(scissorTime)}
@@ -536,22 +536,16 @@ export default function Clip({
             <span
               // biome-ignore lint/suspicious/noArrayIndexKey: waveform samples no unique identifier
               key={index}
-              className="block w-[1px] sm:w-[1.5px] rounded-full bg-white"
+              className="block w-[1px] sm:w-[1.5px] rounded-full"
               style={{ height: `${Math.max(6, value * 20)}px` }}
             />
           ))}
         </div>
       )}
       <div className="relative z-10 flex items-center gap-1.5 sm:gap-2">
-        <div className="hidden sm:flex rounded-full bg-black/40 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]">
-          {clip.type.slice(0, 1)}
-        </div>
-        <div className="flex flex-col text-left min-w-0">
-          <span className="text-[10px] sm:text-[11px] font-semibold leading-tight truncate">
+        <div className="flex flex-col text-center min-w-0">
+          <span className=" leading-tight truncate">
             {clip.name}
-          </span>
-          <span className="hidden sm:block text-[10px] uppercase tracking-[0.2em] text-white/70 truncate">
-            {metadataText}
           </span>
         </div>
       </div>
@@ -570,10 +564,10 @@ export default function Clip({
           {showStartHandle && (
             <div
               className={cn(
-                "absolute left-0 inset-y-0 w-2 z-20 transition",
+                "absolute left-0 inset-y-0 w-4 z-20 flex items-center justify-start pl-1.5 group/handle",
                 canExtendStart || canShrinkStart
-                  ? "bg-white/60 cursor-ew-resize hover:bg-white"
-                  : "bg-white/20 cursor-not-allowed"
+                  ? "cursor-ew-resize"
+                  : "cursor-not-allowed"
               )}
               onMouseDown={(e) => {
                 e.stopPropagation();
@@ -586,15 +580,17 @@ export default function Clip({
                   setInitialTrimEnd(currentTrimEnd);
                 }
               }}
-            />
+            >
+              <div className="w-1 h-6 bg-white rounded-full transition-all shadow-sm" />
+            </div>
           )}
           {showEndHandle && (
             <div
               className={cn(
-                "absolute right-0 inset-y-0 w-2 z-20 transition",
+                "absolute right-0 inset-y-0 w-4 z-20 flex items-center justify-end pr-1.5 group/handle",
                 canExtendEnd || canShrinkEnd
-                  ? "bg-white/60 cursor-ew-resize hover:bg-white"
-                  : "bg-white/20 cursor-not-allowed"
+                  ? "cursor-ew-resize"
+                  : "cursor-not-allowed"
               )}
               onMouseDown={(e) => {
                 e.stopPropagation();
@@ -607,12 +603,19 @@ export default function Clip({
                   setInitialTrimEnd(currentTrimEnd);
                 }
               }}
-            />
+            >
+              <div className="w-1 h-6 bg-white rounded-full transition-all shadow-sm" />
+            </div>
           )}
         </>
       )}
-      <div className="pointer-events-none absolute inset-y-2 left-0 w-1 rounded-full bg-white/40 opacity-0 transition group-hover:opacity-100" />
-      <div className="pointer-events-none absolute inset-y-2 right-0 w-1 rounded-full bg-white/40 opacity-0 transition group-hover:opacity-100" />
+      {/* Start and End Time Display */}
+      <div className="absolute top-1 left-4 text-[9px] text-primary pointer-events-none z-10">
+        {formatTimeWithMs(currentStart)}
+      </div>
+      <div className="absolute top-1 right-4 text-[9px] text-primary pointer-events-none z-10">
+        {formatTimeWithMs(currentStart + currentDuration)}
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import type { TimelineLayer, TimelineClip } from "./types";
 import Ruler from "./ruler";
 import Track from "./track";
 import Playhead from "./playhead";
+import HoverPlayhead from "./hover-playhead";
 import ClipContextMenu from "./context-menu";
 import {
   usePlayback,
@@ -36,10 +37,10 @@ const createInitialClips = (videoElement: HTMLVideoElement | null, duration: num
 };
 
 export default function Timeline() {
-  const { timelineZoom, setTimelineZoom, duration, seek, togglePlay, step, videoElement, scissorMode, setScissorMode } = usePlayback();
+  const { timelineZoom, setTimelineZoom, duration, seek, togglePlay, step, videoElement, scissorMode, setScissorMode, clips, setClips, setPreviewTime } = usePlayback();
   
   // Store clips in state for split/delete operations
-  const [clips, setClips] = useState<TimelineClip[]>([]);
+  // const [clips, setClips] = useState<TimelineClip[]>([]); // Moved to context
   const clipIdCounterRef = useRef(1);
   
   // Initialize clips when video loads
@@ -47,15 +48,16 @@ export default function Timeline() {
     if (videoElement && duration > 0 && clips.length === 0) {
       setClips(createInitialClips(videoElement, duration));
     }
-  }, [videoElement, duration, clips.length]);
+  }, [videoElement, duration, clips.length, setClips]);
   
   // Reset clips when video changes
   useEffect(() => {
     if (!videoElement) {
       setClips([]);
       clipIdCounterRef.current = 1;
+      hasAutoFittedRef.current = false;
     }
-  }, [videoElement]);
+  }, [videoElement, setClips]);
 
   // Generate layers from clips state
   const layers = useMemo<TimelineLayer[]>(() => [{
@@ -78,6 +80,7 @@ export default function Timeline() {
   
   // Refs for syncing scroll
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const hasAutoFittedRef = useRef(false);
 
   // Helper to ensure gapless timeline
   const normalizeClips = (clipsToNormalize: TimelineClip[]): TimelineClip[] => {
@@ -104,7 +107,7 @@ export default function Timeline() {
 
   // Handle clip updates (move, resize, trim)
   const handleClipUpdate = useCallback((
-    layerId: string,
+    _layerId: string,
     clipId: string,
     newStart: number,
     newDuration?: number,
@@ -134,7 +137,7 @@ export default function Timeline() {
 
   // Handle real-time clip resizing (including rolling edits)
   const handleClipResize = useCallback((
-    layerId: string,
+    _layerId: string,
     clipId: string,
     newStart: number,
     newDuration: number,
@@ -197,51 +200,52 @@ export default function Timeline() {
       const isModifyingStart = Math.abs(newEnd - oldEnd) < 0.001;
       
       if (isModifyingStart) {
-        // Special case: If modifying the start of the FIRST clip
-        // We want to trim the start (increase trimStart, decrease duration) but keep start at 0
-        // And shift all subsequent clips left (Ripple)
-        if (clipIndex === 0) {
-           // Force start to 0
-           updatedClips[clipIndex].start = 0;
-           // Duration and trimStart are already updated by Clip.tsx logic based on delta
-           // But Clip.tsx calculated newStart > 0. We reset it to 0.
-           // This means the clip effectively ends earlier than Clip.tsx thought?
-           // No, Clip.tsx: newStart = initialStart + delta, newDuration = initialDuration - delta.
-           // If we force start=0, end = duration.
-           // Original end = initialStart + initialDuration.
-           // New end = 0 + (initialDuration - delta) = initialDuration - delta.
-           // So the end moved left by delta.
-           // This is correct for a ripple trim.
-        } else {
-          const oldStart = oldClip.start;
-          const delta = newStart - oldStart; // Positive if moving right (shrinking), Negative if moving left (extending)
+        const oldStart = oldClip.start;
+        const delta = newStart - oldStart; // Positive if moving right (shrinking), Negative if moving left (extending)
+        
+        // Find a clip that ended exactly where this one started
+        const prevClipIndex = prevClips.findIndex(c => Math.abs((c.start + c.duration) - oldStart) < 0.01 && c.id !== clipId);
+        
+        if (prevClipIndex !== -1) {
+          const prevClip = prevClips[prevClipIndex];
+          // Adjust prev clip: duration changes by delta
+          // If current clip moves right (delta > 0), prev clip extends (duration + delta)
+          // If current clip moves left (delta < 0), prev clip shrinks (duration + delta)
           
-          // Find a clip that ended exactly where this one started
-          const prevClipIndex = prevClips.findIndex(c => Math.abs((c.start + c.duration) - oldStart) < 0.01 && c.id !== clipId);
+          const prevClipNewDuration = prevClip.duration + delta;
+          const prevClipNewTrimEnd = (prevClip.trimEnd ?? 0) - delta;
           
-          if (prevClipIndex !== -1) {
-            const prevClip = prevClips[prevClipIndex];
-            // Adjust prev clip: duration changes by delta
-            // If current clip moves right (delta > 0), prev clip extends (duration + delta)
-            // If current clip moves left (delta < 0), prev clip shrinks (duration + delta)
-            
-            const prevClipNewDuration = prevClip.duration + delta;
-            const prevClipNewTrimEnd = (prevClip.trimEnd ?? 0) - delta;
-            
-            // Only apply if valid (duration > min and we have enough trim handle to extend if needed)
-            if (prevClipNewDuration >= TIMELINE_MIN_DURATION && prevClipNewTrimEnd >= 0) {
-              updatedClips[prevClipIndex] = {
-                ...prevClip,
-                duration: prevClipNewDuration,
-                trimEnd: prevClipNewTrimEnd,
-              };
-            }
+          // Only apply if valid (duration > min and we have enough trim handle to extend if needed)
+          if (prevClipNewDuration >= TIMELINE_MIN_DURATION && prevClipNewTrimEnd >= 0) {
+            updatedClips[prevClipIndex] = {
+              ...prevClip,
+              duration: prevClipNewDuration,
+              trimEnd: prevClipNewTrimEnd,
+            };
           }
         }
       }
 
-      // Normalize to ensure no gaps (handles ripple effects automatically)
-      return normalizeClips(updatedClips);
+      // Custom Ripple Logic during resize (instead of full normalize)
+      // This allows gaps to form temporarily during drag (e.g. dragging start handle right)
+      // preventing visual fighting between Clip.tsx and index.tsx
+      
+      // 1. Sort clips by start time
+      const sorted = [...updatedClips].sort((a, b) => a.start - b.start);
+      
+      // 2. Find the clip that was modified
+      const modifiedIndex = sorted.findIndex(c => c.id === clipId);
+      
+      // 3. Ripple subsequent clips to maintain gapless sequence AFTER the modified clip
+      if (modifiedIndex !== -1) {
+        for (let i = modifiedIndex + 1; i < sorted.length; i++) {
+           const prevEnd = sorted[i-1].start + sorted[i-1].duration;
+           // Shift to close gap or fix overlap
+           sorted[i] = { ...sorted[i], start: prevEnd };
+        }
+      }
+      
+      return sorted;
     });
   }, []);
 
@@ -427,6 +431,14 @@ export default function Timeline() {
       seek(time);
   }
 
+  const handleRulerHover = (e: React.MouseEvent) => {
+      if (!scrollContainerRef.current) return;
+      const rect = scrollContainerRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left + scrollContainerRef.current.scrollLeft - TIMELINE_START_LEFT;
+      const time = Math.max(0, x / timelineZoom);
+      setPreviewTime(time);
+  }
+
   const handleTimelineAreaClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Don't deselect or seek if in scissor mode (clicks are handled by clips)
     if (scissorMode) return;
@@ -483,9 +495,10 @@ export default function Timeline() {
 
   // Auto-fit timeline when video loads or duration changes
   useEffect(() => {
-    if (duration > 0 && scrollContainerRef.current) {
+    if (duration > 0 && scrollContainerRef.current && !hasAutoFittedRef.current) {
       // Auto-fit on initial load
       handleAutoFit();
+      hasAutoFittedRef.current = true;
     }
   }, [duration, handleAutoFit]); // Run when duration changes
 
@@ -586,7 +599,7 @@ export default function Timeline() {
         onClick={handleTimelineAreaClick}
       >
         <div 
-          className="relative min-h-full"
+          className="relative min-h-full flex flex-col"
           style={{ width: totalWidth, minWidth: "100%" }}
         >
           {/* Sticky Ruler */}
@@ -601,14 +614,20 @@ export default function Timeline() {
               e.stopPropagation();
               handleRulerClick(e);
             }}
+            onMouseMove={(e) => {
+               if (scissorMode) return;
+               handleRulerHover(e);
+            }}
+            onMouseLeave={() => {
+               setPreviewTime(null);
+            }}
           >
             <Ruler zoom={timelineZoom} maxDuration={maxClipEnd} />
           </div>
 
           {/* Tracks Area - fills remaining height */}
           <div 
-            className="relative"
-            style={{ minHeight: `calc(100% - ${RULER_HEIGHT}px)` }}
+            className="relative flex-1"
           >
             {layers.map((layer) => (
               <Track
@@ -638,6 +657,7 @@ export default function Timeline() {
               />
             ))}
             
+            <HoverPlayhead zoom={timelineZoom} />
             <Playhead zoom={timelineZoom} />
           </div>
         </div>

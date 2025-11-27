@@ -11,6 +11,7 @@ import Main from "@/components/layout/main";
 import Footer from "@/components/layout/footer";
 import { PlaybackProvider } from "@/context/playback-context";
 import { PresentationProvider } from "@/context/presentation-context";
+import { ExportProvider } from "@/context/export-context";
 import { BackgroundProvider } from "@/context/background-context";
 import { TooltipProvider as GlobalTooltipProvider } from "./components/ui/global-tooltip";
 
@@ -20,30 +21,32 @@ export default function App() {
       <TooltipProvider delayDuration={0}>
         <GlobalTooltipProvider>
           <PresentationProvider>
-            <PlaybackProvider>
-              <BackgroundProvider>
-                <div className="h-dvh w-dvw overflow-hidden">
-                  <TitleBar />
-                  <ResizablePanelGroup direction="vertical">
-                    <ResizablePanel order={1}>
-                      <section className="flex h-full flex-row">
-                        <Sidebar />
-                        <Main />
-                      </section>
-                    </ResizablePanel>
-                    <ResizableHandle withHandle />
-                    <ResizablePanel
-                      minSize={30}
-                      order={2}
-                      defaultSize={31}
-                      maxSize={60}
-                    >
-                      <Footer />
-                    </ResizablePanel>
-                  </ResizablePanelGroup>
-                </div>
-              </BackgroundProvider>
-            </PlaybackProvider>
+            <ExportProvider>
+              <PlaybackProvider>
+                <BackgroundProvider>
+                  <div className="h-dvh w-dvw overflow-hidden">
+                    <TitleBar />
+                    <ResizablePanelGroup direction="vertical">
+                      <ResizablePanel order={1}>
+                        <section className="flex h-full flex-row">
+                          <Sidebar />
+                          <Main />
+                        </section>
+                      </ResizablePanel>
+                      <ResizableHandle withHandle />
+                      <ResizablePanel
+                        minSize={30}
+                        order={2}
+                        defaultSize={31}
+                        maxSize={60}
+                      >
+                        <Footer />
+                      </ResizablePanel>
+                    </ResizablePanelGroup>
+                  </div>
+                </BackgroundProvider>
+              </PlaybackProvider>
+            </ExportProvider>
           </PresentationProvider>
         </GlobalTooltipProvider>
       </TooltipProvider>
