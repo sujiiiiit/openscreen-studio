@@ -3,6 +3,10 @@ import {
   AspectRatioIcon,
   RectangularIcon,
   SquareIcon,
+  PlayIcon,
+  PauseIcon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
 } from "@hugeicons/core-free-icons";
 import {
   Select,
@@ -22,14 +26,25 @@ import ExportSettingsDialog, {
 
 import { useMemo, useRef, useState, useEffect } from "react";
 import { usePresentation } from "@/context/presentation-context";
+import { usePlayback } from "@/context/playback-context";
 import { Button } from "../ui/button";
 
 const ASPECT_OPTIONS = [
   { id: "16-9", label: "Wide", ratioLabel: "16:9", width: 16, height: 9 },
   { id: "9-16", label: "Vertical", ratioLabel: "9:16", width: 9, height: 16 },
+  { id: "4-5", label: "Portrait", ratioLabel: "4:5", width: 4, height: 5 },
   { id: "4-3", label: "Standard", ratioLabel: "4:3", width: 4, height: 3 },
   { id: "1-1", label: "Square", ratioLabel: "1:1", width: 1, height: 1 },
 ];
+
+function formatTime(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  const milliseconds = Math.floor((seconds % 1) * 100);
+  return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+    .toString()
+    .padStart(2, "0")}.${milliseconds.toString().padStart(2, "0")}`;
+}
 
 export default function Main() {
   const [aspectId, setAspectId] = useState<string>(
@@ -44,6 +59,9 @@ export default function Main() {
   const pixiRef = useRef<PixiVideoPlayerHandle>(null);
   const { setIsPresenting, registerPresentationHandler, togglePresentation } =
     usePresentation();
+  const { isPlaying, togglePlay, currentTime, duration, step } = usePlayback();
+
+
 
   const activeAspect = useMemo(() => {
     return (
@@ -107,8 +125,8 @@ export default function Main() {
       </section>
       <section id="controls" className="p-3">
         <div className="h-[var(--titlebar-height)] bg-transparent rounded-md flex flex-row items-center justify-between px-3 gap-2">
-          <div className="flex gap-2">
-            <Select
+          <div className="flex gap-2 items-center">
+                       <Select
               value={aspectId}
               onValueChange={(value) => {
                 setAspectId(value);
@@ -165,6 +183,25 @@ export default function Main() {
               Export Video
             </Button>
           </div>
+           <div className="flex items-center gap-2">
+            <div className="text-xs select-none tabular-nums">
+              {formatTime(currentTime)}
+            </div>
+              <Button variant="ghost" size="icon" onClick={() => step(-5)}>
+                <HugeiconsIcon icon={ArrowLeft01Icon} />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={togglePlay}>
+                <HugeiconsIcon icon={isPlaying ? PauseIcon : PlayIcon} />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => step(5)}>
+                <HugeiconsIcon icon={ArrowRight01Icon} />
+              </Button>
+              
+                <div className="text-xs select-none tabular-nums">
+                {formatTime(duration)}
+                </div>
+              
+            </div>
         </div>
       </section>
       <ExportSettingsDialog
