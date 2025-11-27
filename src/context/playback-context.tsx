@@ -9,9 +9,9 @@ import {
   type ReactNode,
 } from "react";
 
-export const TIMELINE_ZOOM_MIN = 0.5;
-export const TIMELINE_ZOOM_MAX = 4;
-export const TIMELINE_ZOOM_DEFAULT = 1;
+export const TIMELINE_ZOOM_MIN = 5; // Minimum: 5 pixels per second (fit very long videos)
+export const TIMELINE_ZOOM_MAX = 200; // Maximum: 200 pixels per second (see individual seconds)
+export const TIMELINE_ZOOM_DEFAULT = 50; // Default: 50 pixels per second
 
 interface PlaybackContextValue {
   currentTime: number;
@@ -27,6 +27,9 @@ interface PlaybackContextValue {
   setTimelineZoom: (zoom: number) => void;
   setDurationHint: (duration: number | null) => void;
   videoElement: HTMLVideoElement | null;
+  scissorMode: boolean;
+  setScissorMode: (mode: boolean) => void;
+  toggleScissorMode: () => void;
 }
 
 const PlaybackContext = createContext<PlaybackContextValue | undefined>(
@@ -38,6 +41,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [timelineZoom, setTimelineZoomState] = useState(TIMELINE_ZOOM_DEFAULT);
+  const [scissorMode, setScissorModeState] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
@@ -230,6 +234,14 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
     setTimelineZoomState(clamped);
   }, []);
 
+  const setScissorMode = useCallback((mode: boolean) => {
+    setScissorModeState(mode);
+  }, []);
+
+  const toggleScissorMode = useCallback(() => {
+    setScissorModeState((prev) => !prev);
+  }, []);
+
   useEffect(() => {
     return () => {
       detachVideo();
@@ -257,6 +269,9 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       setTimelineZoom,
       setDurationHint: handleDurationHint,
       videoElement: videoRef.current,
+      scissorMode,
+      setScissorMode,
+      toggleScissorMode,
     }),
     [
       currentTime,
@@ -272,6 +287,9 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       setTimelineZoom,
       handleDurationHint,
       videoRef.current,
+      scissorMode,
+      setScissorMode,
+      toggleScissorMode,
     ],
   );
 

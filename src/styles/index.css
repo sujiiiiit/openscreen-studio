@@ -138,3 +138,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide scrollbar for timeline ruler */
+.timeline-ruler-scroll::-webkit-scrollbar {
+  display: none;
+}
+.timeline-ruler-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

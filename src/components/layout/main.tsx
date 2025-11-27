@@ -7,6 +7,7 @@ import {
   PauseIcon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
+  Scissor01Icon,
 } from "@hugeicons/core-free-icons";
 import {
   Select,
@@ -15,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ZoomSlider } from "@/components/timeline/toolbar";
 
 import PixiVideoPlayer, {
   type PixiVideoPlayerHandle,
@@ -26,8 +28,9 @@ import ExportSettingsDialog, {
 
 import { useMemo, useRef, useState, useEffect } from "react";
 import { usePresentation } from "@/context/presentation-context";
-import { usePlayback } from "@/context/playback-context";
+import { usePlayback, TIMELINE_ZOOM_MIN, TIMELINE_ZOOM_MAX } from "@/context/playback-context";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 const ASPECT_OPTIONS = [
   { id: "16-9", label: "Wide", ratioLabel: "16:9", width: 16, height: 9 },
@@ -59,7 +62,11 @@ export default function Main() {
   const pixiRef = useRef<PixiVideoPlayerHandle>(null);
   const { setIsPresenting, registerPresentationHandler, togglePresentation } =
     usePresentation();
-  const { isPlaying, togglePlay, currentTime, duration, step } = usePlayback();
+  const { isPlaying, togglePlay, currentTime, duration, step, timelineZoom, setTimelineZoom, scissorMode, toggleScissorMode } = usePlayback();
+
+  const handleZoomChange = (value: number) => {
+    setTimelineZoom(Math.min(TIMELINE_ZOOM_MAX, Math.max(TIMELINE_ZOOM_MIN, value)));
+  };
 
 
 
@@ -196,12 +203,26 @@ export default function Main() {
               <Button variant="ghost" size="icon" onClick={() => step(5)}>
                 <HugeiconsIcon icon={ArrowRight01Icon} />
               </Button>
+              <Button 
+                variant={scissorMode ? "default" : "ghost"} 
+                size="icon" 
+                onClick={toggleScissorMode}
+                className={cn(scissorMode && "bg-primary text-primary-foreground")}
+                title="Split Tool (click on clip to split)"
+              >
+                <HugeiconsIcon icon={Scissor01Icon} />
+              </Button>
               
                 <div className="text-xs select-none tabular-nums">
                 {formatTime(duration)}
                 </div>
-              
             </div>
+            <ZoomSlider
+              zoom={timelineZoom}
+              minZoom={TIMELINE_ZOOM_MIN}
+              maxZoom={TIMELINE_ZOOM_MAX}
+              onZoomChange={handleZoomChange}
+            />
         </div>
       </section>
       <ExportSettingsDialog

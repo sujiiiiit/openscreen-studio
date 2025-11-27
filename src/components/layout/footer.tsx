@@ -1,3 +1,5 @@
+import Timeline from "@/components/timeline";
+
 export default function Footer() {
-  return <h1>Footer</h1>;
+  return <Timeline />;
 }
