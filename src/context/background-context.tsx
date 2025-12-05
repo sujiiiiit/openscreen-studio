@@ -1,5 +1,19 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 
+// Gradient types
+export type GradientType = "linear" | "radial" | "conic";
+
+export interface GradientStop {
+  color: string;
+  position: number; // 0-100
+}
+
+export interface GradientSettings {
+  type: GradientType;
+  angle: number; // 0-360 degrees for linear/conic
+  stops: GradientStop[];
+}
+
 interface BackgroundState {
   enabled: boolean;
   wallpaperUrl: string;
@@ -10,6 +24,7 @@ interface BackgroundState {
   grainStrength: number;
   backgroundColor: string;
   backgroundMode: "wallpaper" | "color" | "gradient" | "image";
+  gradientSettings: GradientSettings;
 }
 
 interface BackgroundContextValue extends BackgroundState {
@@ -24,12 +39,23 @@ interface BackgroundContextValue extends BackgroundState {
   setBackgroundMode: (
     mode: "wallpaper" | "color" | "gradient" | "image",
   ) => void;
+  setGradientSettings: (settings: GradientSettings) => void;
 }
 export const BACKGROUND_BLUR_VALUE = 0;
 export const BACKGROUND_PADDING_VALUE = 8;
 export const VIDEO_BORDER_RADIUS_VALUE = 1.5;
 export const VIDEO_SHADOW_VALUE = 30;
 export const BACKGROUND_GRAIN_VALUE = 0;
+
+// Default gradient settings
+export const DEFAULT_GRADIENT_SETTINGS: GradientSettings = {
+  type: "linear",
+  angle: 135,
+  stops: [
+    { color: "#667eea", position: 0 },
+    { color: "#764ba2", position: 100 },
+  ],
+};
 
 const BackgroundContext = createContext<BackgroundContextValue | null>(null);
 
@@ -56,6 +82,10 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
   const [backgroundMode, setBackgroundMode] = useState<
     "wallpaper" | "color" | "gradient" | "image"
   >("wallpaper");
+  // Gradient settings
+  const [gradientSettings, setGradientSettings] = useState<GradientSettings>(
+    DEFAULT_GRADIENT_SETTINGS,
+  );
 
   const value: BackgroundContextValue = {
     enabled,
@@ -67,6 +97,7 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
     grainStrength,
     backgroundColor,
     backgroundMode,
+    gradientSettings,
     setEnabled,
     setWallpaperUrl,
     setBlurStrength,
@@ -76,6 +107,7 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
     setGrainStrength,
     setBackgroundColor,
     setBackgroundMode,
+    setGradientSettings,
   };
 
   return (

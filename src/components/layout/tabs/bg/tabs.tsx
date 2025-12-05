@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/tabs";
 import WallpaperTabContent from "./wallpaper";
 import ColorTabContent from "./color";
+import GradientTabContent from "./gradient";
 
 export default function BackgroundTabs() {
   return (
@@ -23,9 +24,7 @@ export default function BackgroundTabs() {
         </TabsContent>
 
         <TabsContent value="gradient">
-          <div className="rounded-md border border-dashed p-6 text-sm text-slate-500">
-            Configure gradient stops, angles, and preview the blend.
-          </div>
+          <GradientTabContent />
         </TabsContent>
 
         <TabsContent value="color">

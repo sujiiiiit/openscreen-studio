@@ -288,7 +288,7 @@ export default function ColorTabContent() {
       </Button>
 
       {/* Color Shades Gradient */}
-      <div className="mt-4 space-y-2">
+      <div className="my-4 space-y-2 ">
         <p className="text-xs text-muted-foreground">
           Select the color shade above to get color values below
         </p>

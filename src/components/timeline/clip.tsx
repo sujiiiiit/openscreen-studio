@@ -474,7 +474,7 @@ export default function Clip({
     <div
       ref={clipRef}
       className={cn(
-        "group absolute flex h-[calc(100%-8px)] select-none items-center justify-center overflow-hidden rounded-xl sm:rounded-2xl border border-white/10 px-2 sm:px-3 text-xs   transition",
+        "group absolute flex h-[calc(100%-8px)] select-none items-center justify-center overflow-hidden rounded-md border border-white/10 px-2 sm:px-3 text-xs   transition bg-primary-active/20",
         (isDragging || resizeMode) && !isLocked && "ring-2 ring-primary",
         isSelected && "ring-2 ring-white",
         isLocked && "opacity-70",
@@ -485,7 +485,7 @@ export default function Clip({
         left: TIMELINE_START_LEFT + currentStart * zoom,
         width: displayWidth,
         top: 4,
-        backgroundImage: `linear-gradient(135deg, ${displayColor}, ${displayColor}DD)`,
+        
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleScissorMouseMove}
@@ -514,7 +514,7 @@ export default function Clip({
           </div>
           {/* Time indicator tooltip */}
           <div 
-            className="absolute -top-8 z-40 pointer-events-none transform -translate-x-1/2 bg-red-500  text-[10px] font-bold px-2 py-1 rounded-md shadow-lg whitespace-nowrap"
+            className="absolute -top-8 z-30 pointer-events-none transform -translate-x-1/2 bg-red-500  text-[10px] font-bold px-2 py-1 rounded-md shadow-lg whitespace-nowrap"
             style={{ left: scissorHoverX }}
           >
             {formatTimeWithMs(scissorTime)}
@@ -552,10 +552,10 @@ export default function Clip({
       
       {/* Trim indicators - show when clip is trimmed */}
       {currentTrimStart > 0 && (
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500/60" title={`Trimmed: ${formatSeconds(currentTrimStart)}`} />
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-active/20" title={`Trimmed: ${formatSeconds(currentTrimStart)}`} />
       )}
       {currentTrimEnd > 0 && (
-        <div className="absolute right-0 top-0 bottom-0 w-1 bg-yellow-500/60" title={`Trimmed: ${formatSeconds(currentTrimEnd)}`} />
+        <div className="absolute right-0 top-0 bottom-0 w-1 bg-primary-active/20" title={`Trimmed: ${formatSeconds(currentTrimEnd)}`} />
       )}
       
       {/* Resize Handles */}

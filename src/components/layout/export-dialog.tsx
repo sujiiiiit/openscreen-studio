@@ -26,7 +26,7 @@ export default function ExportDialog({
   return (
     <>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-background">
           <div className="w-full max-w-md rounded-lg bg-background p-6">
             <h2 className="text-lg font-semibold mb-4">Exporting Video...</h2>
             <Progress value={progress * 100} className="mb-4" showValue />

@@ -1,4 +1,4 @@
-import { Assets, BlurFilter, Texture, NoiseFilter } from "pixi.js";
+import { Assets, BlurFilter, Texture, NoiseFilter, Graphics } from "pixi.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useBackground } from "@/context/background-context";
@@ -19,6 +19,7 @@ export default function WallpaperSprite({
     backgroundColor,
     backgroundMode,
     grainStrength,
+    gradientSettings,
   } = useBackground();
 
   // Animated blur strength for smooth transitions
@@ -207,30 +208,121 @@ export default function WallpaperSprite({
     };
   }, [texture, viewportSize, animatedBlur]);
 
+  // Create gradient texture when in gradient mode
+  const gradientTexture = useMemo(() => {
+    if (backgroundMode !== "gradient" || !gradientSettings) {
+      return null;
+    }
+
+    const { width, height } = viewportSize;
+    const { type, angle, stops } = gradientSettings;
+
+    // Create offscreen canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) return null;
+
+    // Sort stops by position
+    const sortedStops = [...stops].sort((a, b) => a.position - b.position);
+
+    let gradient: CanvasGradient;
+
+    if (type === "linear") {
+      // Convert angle to radians and calculate gradient line
+      const angleRad = (angle * Math.PI) / 180;
+      const diagonal = Math.sqrt(width * width + height * height);
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      // Calculate start and end points for the gradient line
+      const dx = Math.cos(angleRad) * diagonal / 2;
+      const dy = Math.sin(angleRad) * diagonal / 2;
+
+      const x0 = centerX - dx;
+      const y0 = centerY - dy;
+      const x1 = centerX + dx;
+      const y1 = centerY + dy;
+
+      gradient = ctx.createLinearGradient(x0, y0, x1, y1);
+    } else if (type === "radial") {
+      // Create radial gradient from center
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = Math.sqrt(width * width + height * height) / 2;
+
+      gradient = ctx.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, radius
+      );
+    } else if (type === "conic") {
+      // Create conic gradient
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const angleRad = (angle * Math.PI) / 180;
+
+      gradient = ctx.createConicGradient(angleRad, centerX, centerY);
+    } else {
+      return null;
+    }
+
+    // Add color stops to the gradient
+    sortedStops.forEach((stop) => {
+      gradient.addColorStop(stop.position / 100, stop.color);
+    });
+
+    // Draw the gradient on canvas
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    // Create texture from canvas
+    const tex = Texture.from(canvas);
+    
+    // Clean up canvas
+    canvas.remove();
+
+    return tex;
+  }, [backgroundMode, gradientSettings, viewportSize]);
+
   if (!enabled || texture === Texture.EMPTY) {
     return null;
   }
 
+  // Convert hex to RGB integer for PixiJS
+  const hexToRgb = (hex: string): number => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return 0x000000;
+    return (
+      parseInt(result[1], 16) * 65536 +
+      parseInt(result[2], 16) * 256 +
+      parseInt(result[3], 16)
+    );
+  };
+
   // If in color mode, render solid color instead of wallpaper
   if (backgroundMode === "color" && backgroundColor) {
-    // Convert hex to RGB integer for PixiJS
-    const hexToRgb = (hex: string): number => {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      if (!result) return 0x000000;
-      return (
-        parseInt(result[1], 16) * 65536 +
-        parseInt(result[2], 16) * 256 +
-        parseInt(result[3], 16)
-      );
-    };
-
     return (
       <pixiGraphics
         draw={(g) => {
           g.clear();
-          g.beginFill(hexToRgb(backgroundColor));
-          g.drawRect(0, 0, viewportSize.width, viewportSize.height);
-          g.endFill();
+          g.rect(0, 0, viewportSize.width, viewportSize.height);
+          g.fill(hexToRgb(backgroundColor));
+        }}
+        filters={noiseFilter ? [noiseFilter] : undefined}
+      />
+    );
+  }
+
+  // If in gradient mode, render gradient background
+  if (backgroundMode === "gradient" && gradientTexture) {
+    return (
+      <pixiGraphics
+        draw={(g: Graphics) => {
+          g.clear();
+          g.rect(0, 0, viewportSize.width, viewportSize.height);
+          g.fill({ texture: gradientTexture });
         }}
         filters={noiseFilter ? [noiseFilter] : undefined}
       />
