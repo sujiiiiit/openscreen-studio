@@ -21,6 +21,8 @@ interface BackgroundState {
   padding: number;
   videoBorderRadius: number;
   videoShadow: number;
+  videoBorder: number;
+  videoBorderColor: string;
   grainStrength: number;
   backgroundColor: string;
   backgroundMode: "wallpaper" | "color" | "gradient" | "image";
@@ -34,6 +36,8 @@ interface BackgroundContextValue extends BackgroundState {
   setPadding: (padding: number) => void;
   setVideoBorderRadius: (radius: number) => void;
   setVideoShadow: (shadow: number) => void;
+  setVideoBorder: (border: number) => void;
+  setVideoBorderColor: (color: string) => void;
   setGrainStrength: (strength: number) => void;
   setBackgroundColor: (color: string) => void;
   setBackgroundMode: (
@@ -45,6 +49,8 @@ export const BACKGROUND_BLUR_VALUE = 0;
 export const BACKGROUND_PADDING_VALUE = 8;
 export const VIDEO_BORDER_RADIUS_VALUE = 1.5;
 export const VIDEO_SHADOW_VALUE = 30;
+export const VIDEO_BORDER_VALUE = 0;
+export const VIDEO_BORDER_COLOR_VALUE = "#ffffff";
 export const BACKGROUND_GRAIN_VALUE = 0;
 
 // Default gradient settings
@@ -74,6 +80,10 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
   );
   // Shadow: 0-100 range, default 30 (Mac-style shadow)
   const [videoShadow, setVideoShadow] = useState(VIDEO_SHADOW_VALUE);
+  // Border: 0-20 range, default 0 (no border)
+  const [videoBorder, setVideoBorder] = useState(VIDEO_BORDER_VALUE);
+  // Border color: default white
+  const [videoBorderColor, setVideoBorderColor] = useState(VIDEO_BORDER_COLOR_VALUE);
   // Grain: 0-100 range, default 0 (no grain)
   const [grainStrength, setGrainStrength] = useState(BACKGROUND_GRAIN_VALUE);
   // Background color for solid color mode
@@ -94,6 +104,8 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
     padding,
     videoBorderRadius,
     videoShadow,
+    videoBorder,
+    videoBorderColor,
     grainStrength,
     backgroundColor,
     backgroundMode,
@@ -104,6 +116,8 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
     setPadding,
     setVideoBorderRadius,
     setVideoShadow,
+    setVideoBorder,
+    setVideoBorderColor,
     setGrainStrength,
     setBackgroundColor,
     setBackgroundMode,
