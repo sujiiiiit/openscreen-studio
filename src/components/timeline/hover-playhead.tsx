@@ -57,13 +57,13 @@ export default function HoverPlayhead({ zoom }: HoverPlayheadProps) {
       {/* Time Label - Positioned above the track area (over the ruler) */}
       <div 
         ref={labelRef}
-        className="absolute -top-8 bg-zinc-900/90 text-white text-[10px] font-mono px-1.5 py-0.5 rounded border border-white/10 shadow-sm whitespace-nowrap backdrop-blur-sm"
+        className="absolute top-10 bg-zinc-900/90 text-white text-[10px]  px-1.5 py-0.5 rounded-full border border-white/10 shadow-sm whitespace-nowrap backdrop-blur-sm z-50"
       >
         0:00.00
       </div>
 
       {/* Head/Indicator */}
-      <div className="absolute -top-1 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-black" />
+      <div className="absolute top-0 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-black" />
 
       {/* Line */}
       <div className="w-px h-full border-l border-dashed border-black" />

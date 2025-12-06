@@ -439,12 +439,12 @@ export default function Timeline() {
       setPreviewTime(time);
   }
 
-  const handleTimelineAreaClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Don't deselect or seek if in scissor mode (clicks are handled by clips)
+  const handleTimelineAreaClick = () => {
+    // Don't deselect if in scissor mode (clicks are handled by clips)
     if (scissorMode) return;
     
+    // Only deselect, don't seek (seeking is handled by ruler clicks only)
     handleDeselect();
-    handleRulerClick(e);
   };
 
   const handleAutoFit = useCallback(() => {
@@ -595,11 +595,16 @@ export default function Timeline() {
       {/* Single scroll container for both ruler and tracks */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-auto "
+        className="flex-1 overflow-auto"
+        style={{ 
+          scrollBehavior: 'auto',
+          willChange: 'scroll-position',
+          contain: 'layout style paint',
+        }}
         onClick={handleTimelineAreaClick}
       >
         <div 
-          className="relative min-h-full flex flex-col"
+          className="relative min-h-full flex flex-col space-y-2"
           style={{ width: totalWidth, minWidth: "100%" }}
         >
           {/* Sticky Ruler */}
@@ -657,9 +662,10 @@ export default function Timeline() {
               />
             ))}
             
-            <HoverPlayhead zoom={timelineZoom} />
-            <Playhead zoom={timelineZoom} />
+           
           </div>
+           <HoverPlayhead zoom={timelineZoom} />
+            <Playhead zoom={timelineZoom} scrollContainerRef={scrollContainerRef} />
         </div>
       </div>
 
